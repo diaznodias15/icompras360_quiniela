@@ -17,12 +17,13 @@ import {
   NumberInput,
   Button,
   Divider,
+  Loader,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 // COMPONENTS
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component.jsx";
 // SERVICES
-import { getPartidosLista } from "@services/partidos/partidos.services";
+import { getPartidosLista, guardarPronostico } from "@services/partidos/partidos.services";
 // STORE
 import { useUserStore } from "@store/user.store";
 // LUCIDE
@@ -44,6 +45,7 @@ const Predictions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [predictions, setPredictions] = useState({});
+  const [savingPredictions, setSavingPredictions] = useState({});
 
   // Obtener el token de la sesión activa
   const token = useUserStore((state) => state.token);
@@ -124,7 +126,7 @@ const Predictions = () => {
     }));
   };
 
-  const savePrediction = (matchId) => {
+  const savePrediction = async (matchId) => {
     const pred = predictions[matchId];
     if (pred?.local === undefined || pred?.visitante === undefined) {
       notifications.show({
@@ -135,11 +137,30 @@ const Predictions = () => {
       return;
     }
 
-    notifications.show({
-      color: "success",
-      title: "Predicción Guardada",
-      message: `Predicción para el partido ID ${matchId}: ${pred.local} - ${pred.visitante}`,
-    });
+    setSavingPredictions((prev) => ({ ...prev, [matchId]: true }));
+    try {
+      await guardarPronostico(
+        {
+          partido_id: matchId,
+          goles_local: pred.local,
+          goles_visitante: pred.visitante,
+        },
+        { authToken: token },
+      );
+      notifications.show({
+        color: "success",
+        title: "Pronóstico guardado",
+        message: "Tu predicción fue registrada correctamente.",
+      });
+    } catch (err) {
+      notifications.show({
+        color: "danger",
+        title: "Error al guardar",
+        message: err?.data?.message || "No se pudo guardar el pronóstico. Intenta de nuevo.",
+      });
+    } finally {
+      setSavingPredictions((prev) => ({ ...prev, [matchId]: false }));
+    }
   };
 
   return (
@@ -410,6 +431,7 @@ const Predictions = () => {
                  {partidos.map((partido) => {
                   const currentPred = predictions[partido.id] || {};
                   const isLocked = isMatchLocked(partido.fecha_hora_utc);
+                  const isSaving = savingPredictions[partido.id] ?? false;
                   return (
                     <Grid.Col key={partido.id} span={{ base: 12, md: 6 }}>
                       <Card
@@ -519,11 +541,12 @@ const Predictions = () => {
                               variant="light"
                               color={isLocked ? "gray" : "blue"}
                               size="xs"
-                              leftSection={isLocked ? <Lock size={14} /> : <Save size={14} />}
+                              leftSection={isLocked ? <Lock size={14} /> : isSaving ? <Loader size={14} color="blue" /> : <Save size={14} />}
                               onClick={() => savePrediction(partido.id)}
-                              disabled={isLocked}
+                              disabled={isLocked || isSaving}
+                              loading={isSaving}
                             >
-                              {isLocked ? "Cerrado" : "Guardar"}
+                              {isLocked ? "Cerrado" : isSaving ? "Guardando..." : "Guardar"}
                             </Button>
                           </Flex>
 

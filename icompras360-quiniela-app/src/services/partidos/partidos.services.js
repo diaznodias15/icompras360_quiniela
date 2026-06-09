@@ -48,3 +48,55 @@ export const getPartidosLista = async (params = {}) => {
     throw error;
   }
 };
+
+/**
+ * Service to save a prediction (pronóstico) to the API.
+ * @param {Object} data - Prediction data.
+ * @param {number} data.partido_id - The match ID.
+ * @param {number} data.goles_local - Goals predicted for the home team.
+ * @param {number} data.goles_visitante - Goals predicted for the away team.
+ * @param {Object} params - Extra config parameters.
+ * @param {string} [params.authToken] - Optional auth token.
+ * @param {AbortController} [params.controller] - Optional AbortController.
+ * @param {Function} [params.onSuccess] - Success callback.
+ * @param {Function} [params.onError] - Error callback.
+ * @returns {Promise<Object>} Resolves with the API response data.
+ */
+export const guardarPronostico = async (data, params = {}) => {
+  const { authToken, controller, onSuccess, onError } = params;
+  try {
+    const response = await axiosRequest({
+      url: `/api/partidos/guardar-pronostico`,
+      method: "POST",
+      data: {
+        partido_id: data.partido_id,
+        goles_local: data.goles_local,
+        goles_visitante: data.goles_visitante,
+      },
+      authToken,
+      controller,
+      onSuccess: (resData) => {
+        if (onSuccess) {
+          onSuccess(resData);
+        }
+      },
+      onError: (code, error) => {
+        console.error("Error saving prediction:", code, error);
+        if (code === 401) {
+          useUserStore.getState().reset();
+        }
+        if (onError) {
+          onError(code, error);
+        }
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error in guardarPronostico service:", error);
+    if (error?.status === 401 || error?.response?.status === 401) {
+      useUserStore.getState().reset();
+    }
+    throw error;
+  }
+};
+
