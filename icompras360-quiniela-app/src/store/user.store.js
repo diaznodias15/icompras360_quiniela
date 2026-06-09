@@ -6,18 +6,20 @@ const inicialState = {
   email: null,
   token: null,
 };
-export const useUserStore = create((set) => ({
-  ...inicialState,
-  setId: (id) => {
-    set(() => ({ id }));
-  },
-  setEmail: (email) => {
-    set(() => ({ email }));
-  },
-  setToken: (token) => {
-    set(() => ({ token }));
-  },
-  reset: () => {
-    set(inicialState);
-  },
-}));
+export const useUserStore = create(
+  persist((set) => ({
+    ...inicialState,
+    setId: (id) => {
+      set(() => ({ id }));
+    },
+    setEmail: (email) => {
+      set(() => ({ email }));
+    },
+    setToken: (token) => {
+      set(() => ({ token }));
+    },
+    reset: () => {
+      set(inicialState);
+    },
+  })),
+);

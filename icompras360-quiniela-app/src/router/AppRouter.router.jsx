@@ -15,7 +15,7 @@ import { PrivateRoutes, PublicRoutes } from "./routes.router";
 import ProtectedRoute from "./ProtectedRoutes.router";
 
 const Login = lazy(() => import("@pages/Login.page"));
-const Predictions = lazy(() => import("@pages/Login.page"));
+const Predictions = lazy(() => import("@pages/Predictions.page"));
 const SignUp = lazy(() => import("@pages/SignUp.page"));
 
 const AppRouter = () => {
