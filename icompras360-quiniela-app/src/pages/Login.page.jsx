@@ -16,16 +16,15 @@ import {
 } from "@mantine/core";
 import { useDocumentTitle, useDisclosure, useMediaQuery } from "@mantine/hooks";
 // COMPONENTS
-import { ModalEmailUnverified } from "@components/login/ModalEmailUnverified/ModalEmailUnverified.component";
 import { ServerError } from "@components/common/ServerError/ServerError.component";
 import { VisibilityToggleIcon } from "@components/login/VisibilityToggleIcon/VisibilityToggleIcon.component";
 // CONTEXT
 import { UserFormProvider, useUserForm } from "@context/login/login.context";
 import { AppContext } from "@context/app.context";
 // LUCIDE
-import { AtSign, ChevronLeft, LogIn, RectangleEllipsis } from "lucide-react";
+import { AtSign, LogIn, RectangleEllipsis } from "lucide-react";
 // ROUTER
-import { PublicRoutes } from "@router/routes.router";
+import { PublicRoutes, PrivateRoutes } from "@router/routes.router";
 // SERVICES
 import { handleLogIn } from "@services/auth/login.services";
 // STORE
@@ -44,32 +43,25 @@ const Login = () => {
   useDocumentTitle(`${envVariables.APP_NAME} - Login`);
 
   // CONTEXT
-  const { appConfig, selectedBranch } = useContext(AppContext);
+  const { appConfig } = useContext(AppContext);
 
   // RESPONSIVE
   const isMobile = useMediaQuery("(max-width: 768px)");
   const imageWidth = useMatches({ base: 130, xs: 200 });
-  const justifyMatches = useMatches({ base: "end", sm: "start" });
 
   // NAVIGATE
   const navigate = useNavigate();
 
   // MANTINE HOOKS
   const [isLoading, isLoadingActions] = useDisclosure(false);
-  const [isModalOpen, isModalOpenActions] = useDisclosure(false);
-  const [isModalEmailUnverifiedOpen, isModalEmailUnverifiedActions] =
-    useDisclosure(false);
+  useDisclosure(false);
 
   // STORE
   const token = useUserStore((state) => state.token);
   const storeData = {
     setUserID: useUserStore((state) => state.setId),
     setUserEmail: useUserStore((state) => state.setEmail),
-    setUserName: useUserStore((state) => state.setName),
-    setUserPhone: useUserStore((state) => state.setPhone),
-    setUserAddress: useUserStore((state) => state.setAddress),
     setUserToken: useUserStore((state) => state.setToken),
-    setUserCreatedAt: useUserStore((state) => state.setCreatedAt),
   };
 
   // REF
@@ -93,20 +85,14 @@ const Login = () => {
   const handleSubmit = async (values) => {
     const states = {
       isLoadingActions: isLoadingActions,
-      isModalEmailUnverifiedActions: isModalEmailUnverifiedActions,
       navigate: navigate,
     };
-    await handleLogIn(
-      { ...values, branch_id: selectedBranch.value },
-      controllerRef.current,
-      states,
-      storeData,
-    );
+    await handleLogIn(values, controllerRef.current, states, storeData);
   };
 
   // EFFECTS
   useEffect(() => {
-    if (token) navigate("/");
+    if (token) navigate(`${PrivateRoutes.PREDICTIONS.route}`);
     controllerRef.current = new AbortController();
 
     return () => {
@@ -258,10 +244,6 @@ const Login = () => {
           </form>
         </Paper>
       </Flex>
-      <ModalEmailUnverified
-        isModalOpened={isModalEmailUnverifiedOpen}
-        modalActions={isModalEmailUnverifiedActions}
-      />
     </UserFormProvider>
   );
 };

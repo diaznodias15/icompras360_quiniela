@@ -22,9 +22,9 @@ import { ThemeButton } from "@components/common/ThemeButton/ThemeButton.componen
 // CONTEXT
 import { AppContext } from "@context/app.context";
 // LUCIDE
-import { LogIn, LogOut, MapPin, Package, RefreshCw, User } from "lucide-react";
+import { LogIn, LogOut, MapPin, RefreshCw, User } from "lucide-react";
 // ROUTER
-import { PrivateRoutes, PublicRoutes } from "@router/routes.router";
+import { PublicRoutes } from "@router/routes.router";
 // STORE
 import { useUserStore } from "@store/user.store";
 // STYLES
@@ -45,7 +45,6 @@ const NavbarLogo = () => {
     <Anchor
       c="for-navbar"
       component={Link}
-      to={PublicRoutes.HOME.route}
       onClick={() => handleScrollToTop()}
       underline="never"
     >
@@ -73,116 +72,19 @@ const NavbarLogo = () => {
 
 const NavbarButtons = () => {
   // CONTEXT
-  const {
-    appConfig,
-    currencyValue,
-    modalBranchesActions,
-    modalLogoutActions,
-    selectedBranch,
-    toggleCurrency,
-  } = useContext(AppContext);
+  const { modalLogoutActions } = useContext(AppContext);
 
   // STORE
   const userID = useUserStore((state) => state.id);
-  const userName = useUserStore((state) => state.name);
   const userEmail = useUserStore((state) => state.email);
-
-  const renderProfileRoutes = profileRoutes.map((route, index) => {
-    return (
-      <NavLink
-        active={true}
-        color={"primary"}
-        component={Link}
-        key={index}
-        label={
-          <Flex align={"center"} gap={3}>
-            <Text size="xs">{route.name}</Text>
-          </Flex>
-        }
-        leftSection={route.icon}
-        to={route.route}
-        size={"xs"}
-        style={{
-          borderRadius: "var(--mantine-radius-default)",
-        }}
-        variant="light"
-      />
-    );
-  });
 
   return (
     <Flex align="center" gap={10} h={"100%"} justify="flex-end">
-      <UnstyledButton
-        c={"for-navbar"}
-        className={classes.navbarButton}
-        h={45}
-        maw={140}
-        onClick={toggleCurrency}
-        w={"100%"}
-        visibleFrom="sm"
-      >
-        <Flex align={"center"} gap={5}>
-          <RefreshCw style={{ flexShrink: 0 }} />
-          <Flex direction={"column"}>
-            <Text lineClamp={1} size={"xs"}>
-              {currencyValue.alias}
-            </Text>
-            <Text lineClamp={1} size="2xs" visibleFrom="md">
-              1REF ={" "}
-              <NumberFormatter
-                decimalScale={3}
-                decimalSeparator=","
-                suffix={`Bs.`}
-                thousandSeparator="."
-                value={appConfig.amt_exchange_rate}
-              />
-            </Text>
-          </Flex>
-        </Flex>
-      </UnstyledButton>
-      <UnstyledButton
-        c={"for-navbar"}
-        className={classes.navbarButton}
-        h={45}
-        onClick={modalBranchesActions.open}
-        visibleFrom="sm"
-      >
-        <Flex align={"center"} gap={5}>
-          <MapPin style={{ flexShrink: 0 }} />
-          <Flex direction={"column"}>
-            <Text size={"xs"} lineClamp={1}>
-              {selectedBranch?.nb_branch || ""}
-            </Text>
-            <Text size="2xs" lineClamp={1}>
-              {selectedBranch?.tx_alias || ""}
-            </Text>
-          </Flex>
-        </Flex>
-      </UnstyledButton>
-      {appConfig.is_allow_dark_mode === 1 && (
-        <Flex visibleFrom="md">
-          <ThemeButton />
-        </Flex>
-      )}
-      {(appConfig.is_show_cart === 1 || appConfig.is_show_user === 1) && (
-        <Flex align={"center"} visibleFrom="md">
-          <Divider
-            orientation="vertical"
-            h={30}
-            size={"sm"}
-            style={{
-              borderRadius: "var(--mantine-radius-default)",
-            }}
-          />
-        </Flex>
-      )}
       <Flex>
-        <HoverCard
-          offset={0}
-          position={"bottom-center"}
-          visibleFrom="md"
-          withArrow
-        >
+        <ThemeButton />
+      </Flex>
+      <Flex>
+        <HoverCard offset={0} position={"bottom-center"} withArrow>
           <HoverCard.Target>
             <UnstyledButton
               aria-label="Abrir menú de usuario"
@@ -196,7 +98,7 @@ const NavbarButtons = () => {
                 {!userID ? (
                   <User style={{ flexShrink: 0 }} />
                 ) : (
-                  <Avatar color="primary" size={35} name={userName}></Avatar>
+                  <Avatar color="primary" size={35} name={userEmail}></Avatar>
                 )}
                 <Flex
                   align={"flex-start"}
@@ -205,20 +107,12 @@ const NavbarButtons = () => {
                   justify={"center"}
                   w={"100%"}
                 >
-                  {userName && (
+                  {userEmail && (
                     <>
                       <Text fw={500} lineClamp={1} size={"xs"} w={"100%"}>
-                        {userName}
-                      </Text>
-                      <Text c={"dimmed"} lineClamp={1} size={"2xs"} w={"100%"}>
                         {userEmail}
                       </Text>
                     </>
-                  )}
-                  {!userName && (
-                    <Text fw={500} size={"xs"}>
-                      Invitado
-                    </Text>
                   )}
                 </Flex>
               </Flex>
@@ -294,8 +188,6 @@ const NavbarButtons = () => {
               )}
               {userID && (
                 <>
-                  {renderProfileRoutes}
-                  <Divider w={"100%"} />
                   <Button
                     color="danger"
                     fullWidth
@@ -324,15 +216,15 @@ export const Navbar = memo(() => {
       c={"for-navbar"}
       h={{ base: 80, md: 70 }}
       radius={0}
+      style={{ overflowX: "hidden" }}
       shadow={"sm"}
     >
       <Flex align={"center"} h={"100%"} w={"100%"}>
         <ContainerSection maw={"100%"} px={{ base: 10, md: 20 }}>
           <Flex align={"center"} gap={5} h={"100%"} justify={"space-between"}>
-            <Flex align={"center"} className="grow" gap={5} visibleFrom="md">
+            <Flex align={"center"} className="grow" gap={5}>
               <NavbarLogo />
             </Flex>
-            <NavbarSearch />
             <Flex
               align={"center"}
               className="grow"

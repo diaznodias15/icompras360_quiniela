@@ -24,10 +24,13 @@ function App() {
     colors: {
       //C-B
       "c-background": colorsTuple("#F2F2F2"),
-      "c-background-dark": colorsTuple("#F2F2F2"),
+      "c-background-dark": colorsTuple("#1E293B"),
       // C-D
       "c-danger": colorsTuple("#F31260"),
       "c-danger-dark": colorsTuple("#F31260"),
+      // C-N
+      "c-navbar": colorsTuple("#FFFFFF"),
+      "c-navbar-dark": colorsTuple("#242F3E"),
       // C-P
       "c-primary": [
         "#ecf4ff",
@@ -55,6 +58,8 @@ function App() {
       ],
 
       // C-S
+      "c-section": colorsTuple("#FFFFFF"),
+      "c-section-dark": colorsTuple("#242F3E"),
       "c-success": colorsTuple("#00973C"),
       "c-success-dark": colorsTuple("#00973C"),
 
@@ -72,13 +77,25 @@ function App() {
         name: "danger",
       }),
 
+      // N
+      navbar: virtualColor({
+        dark: "c-navbar-dark",
+        light: "c-navbar",
+        name: "navbar",
+      }),
+
       // P
       primary: virtualColor({
         dark: "c-primary-dark",
         light: "c-primary",
         name: "primary",
       }),
-
+      // S
+      section: virtualColor({
+        dark: "c-section-dark",
+        light: "c-section",
+        name: "section",
+      }),
       success: virtualColor({
         name: "success",
         dark: "c-success-dark",
