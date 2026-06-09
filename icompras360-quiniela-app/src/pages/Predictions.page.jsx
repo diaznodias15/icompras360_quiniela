@@ -36,6 +36,7 @@ import {
   MapPin,
   Clock,
   Save,
+  Lock,
 } from "lucide-react";
 
 const Predictions = () => {
@@ -99,6 +100,18 @@ const Predictions = () => {
   const getFlagUrl = (isoCode) => {
     if (!isoCode) return null;
     return `https://flagcdn.com/72x54/${isoCode.toLowerCase()}.webp`;
+  };
+
+  const isMatchLocked = (dateString) => {
+    if (!dateString) return true;
+    try {
+      const matchTime = new Date(dateString.replace(" ", "T") + "Z").getTime();
+      const currentTime = Date.now();
+      const thirtyMinutesInMs = 30 * 60 * 1000;
+      return currentTime >= (matchTime - thirtyMinutesInMs);
+    } catch (e) {
+      return true;
+    }
   };
 
   const handlePredictionChange = (matchId, team, val) => {
@@ -394,8 +407,9 @@ const Predictions = () => {
               </Alert>
             ) : (
               <Grid gutter="lg">
-                {partidos.map((partido) => {
+                 {partidos.map((partido) => {
                   const currentPred = predictions[partido.id] || {};
+                  const isLocked = isMatchLocked(partido.fecha_hora_utc);
                   return (
                     <Grid.Col key={partido.id} span={{ base: 12, md: 6 }}>
                       <Card
@@ -405,16 +419,22 @@ const Predictions = () => {
                         shadow="sm"
                         style={{
                           transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                          cursor: "pointer",
+                          cursor: isLocked ? "not-allowed" : "pointer",
+                          opacity: isLocked ? 0.85 : 1,
+                          backgroundColor: isLocked ? "var(--mantine-color-gray-0)" : undefined,
                         }}
                         className="match-card"
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = "translateY(-4px)";
-                          e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
+                          if (!isLocked) {
+                            e.currentTarget.style.transform = "translateY(-4px)";
+                            e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
+                          if (!isLocked) {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
+                          }
                         }}
                       >
                         {/* Header: Fase y Grupo */}
@@ -422,9 +442,16 @@ const Predictions = () => {
                           <Badge color="blue" variant="light" size="sm">
                             {partido.fase?.nombre || "Fase de Grupos"}
                           </Badge>
-                          <Badge color="violet" variant="outline" size="sm">
-                            Grupo {partido.grupo || "N/A"}
-                          </Badge>
+                          <Group gap={6}>
+                            {isLocked && (
+                              <Badge color="red" variant="filled" size="sm" leftSection={<Lock size={10} />}>
+                                Bloqueado
+                              </Badge>
+                            )}
+                            <Badge color="violet" variant="outline" size="sm">
+                              Grupo {partido.grupo || "N/A"}
+                            </Badge>
+                          </Group>
                         </Group>
 
                         {/* Equipos y Predicción */}
@@ -468,6 +495,7 @@ const Predictions = () => {
                                 size="sm"
                                 hideControls
                                 value={currentPred.local}
+                                disabled={isLocked}
                                 onChange={(val) => handlePredictionChange(partido.id, "local", val)}
                                 styles={{ input: { textAlign: "center", fontWeight: "bold" } }}
                               />
@@ -482,18 +510,20 @@ const Predictions = () => {
                                 size="sm"
                                 hideControls
                                 value={currentPred.visitante}
+                                disabled={isLocked}
                                 onChange={(val) => handlePredictionChange(partido.id, "visitante", val)}
                                 styles={{ input: { textAlign: "center", fontWeight: "bold" } }}
                               />
                             </Group>
                             <Button
                               variant="light"
-                              color="blue"
+                              color={isLocked ? "gray" : "blue"}
                               size="xs"
-                              leftSection={<Save size={14} />}
+                              leftSection={isLocked ? <Lock size={14} /> : <Save size={14} />}
                               onClick={() => savePrediction(partido.id)}
+                              disabled={isLocked}
                             >
-                              Guardar
+                              {isLocked ? "Cerrado" : "Guardar"}
                             </Button>
                           </Flex>
 
