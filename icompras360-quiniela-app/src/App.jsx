@@ -9,12 +9,15 @@ import {
   v8CssVariablesResolver,
   virtualColor,
 } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 // CONTEXT
 import { AppContextProvider } from "@context/app.context";
 // ROUTER
 import AppRouter from "@router/AppRouter.router";
 // STYLES
 import "@mantine/core/styles.css";
+// MANTINE NOTIFICATIONS STYLES
+import "@mantine/notifications/styles.css";
 
 function App() {
   const theme = createTheme({
@@ -153,6 +156,7 @@ function App() {
       defaultColorScheme="light"
       theme={theme}
     >
+      <Notifications autoClose={3000} position="top-center" zIndex={10000} />
       <AppContextProvider>
         <AppRouter />
       </AppContextProvider>

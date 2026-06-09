@@ -1,6 +1,6 @@
 // REACT
 import { useCallback, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 // MANTINE
 import {
   ActionIcon,
@@ -30,6 +30,8 @@ import {
 import { AtSign, Check, Info, RectangleEllipsis, Lock, X } from "lucide-react";
 // ROUTER
 import { PublicRoutes } from "@router/routes.router";
+// SERVICES
+import { handleSignUp } from "@services/auth/sign_up.services.jsx";
 // STYLES
 import classes from "@styles/global.module.css";
 // UTILITIES
@@ -68,6 +70,9 @@ function PasswordRequirement({ meets, label }) {
 }
 
 const SignUp = () => {
+  // NAVIGATION
+  const navigate = useNavigate();
+
   // STATES
   const [isLoading, setIsLoading] = useState(false);
   const [passwordValue, setPasswordValue] = useInputState("");
@@ -109,7 +114,11 @@ const SignUp = () => {
 
   // FUNCTION
   const handleSubmit = useCallback(async (values) => {
-    console.log(values);
+    const states = {
+      navigate: navigate,
+      setIsLoading: setIsLoading,
+    };
+    await handleSignUp(values, states);
   }, []);
 
   const bars = Array(4)

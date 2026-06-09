@@ -95,26 +95,7 @@ const NavbarButtons = () => {
               w={"100%"}
             >
               <Flex align="center" gap={10} miw={0} w="100%">
-                {!userID ? (
-                  <User style={{ flexShrink: 0 }} />
-                ) : (
-                  <Avatar color="primary" size={35} name={userEmail}></Avatar>
-                )}
-                <Flex
-                  align={"flex-start"}
-                  direction={"column"}
-                  miw={0}
-                  justify={"center"}
-                  w={"100%"}
-                >
-                  {userEmail && (
-                    <>
-                      <Text fw={500} lineClamp={1} size={"xs"} w={"100%"}>
-                        {userEmail}
-                      </Text>
-                    </>
-                  )}
-                </Flex>
+                <Avatar color="primary" size={35} name={userEmail}></Avatar>
               </Flex>
             </UnstyledButton>
           </HoverCard.Target>
@@ -127,80 +108,49 @@ const NavbarButtons = () => {
               p={10}
               w={200}
             >
-              {!userID && (
-                <Avatar color="primary" size={50} name={userName}>
-                  <User height={30} width={30} />
-                </Avatar>
-              )}
               <Flex
                 align={"center"}
                 direction={"column"}
                 justify={"center"}
                 w={"100%"}
               >
-                {!userID && (
-                  <>
-                    <Text
-                      fw={600}
-                      lineClamp={2}
-                      size={"sm"}
-                      style={{
-                        whiteSpace: "normal",
-                        overflowWrap: "break-word",
-                        wordBreak: "break-all",
-                        textWrap: "balance",
-                      }}
-                    >
-                      Bienvenido
-                    </Text>
-                    <Text c={"dimmed"} lineClamp={2} size={"2xs"}>
-                      Inicia sesión para realizar tus compras
-                    </Text>
-                  </>
-                )}
+                <Text
+                  fw={600}
+                  lineClamp={2}
+                  size={"sm"}
+                  style={{
+                    whiteSpace: "normal",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-all",
+                    textWrap: "balance",
+                  }}
+                >
+                  Bienvenido
+                </Text>
+                <Text
+                  fw={500}
+                  lineClamp={1}
+                  size={"2xs"}
+                  w={"100%"}
+                  ta={"center"}
+                >
+                  {userEmail}
+                </Text>
+                <Text c={"dimmed"} lineClamp={2} size={"2xs"}>
+                  Ya puedes realizar tu quiniela
+                </Text>
               </Flex>
-              {!userID && (
-                <>
-                  <Button
-                    className="shadow-lg"
-                    component={Link}
-                    fullWidth
-                    leftSection={<LogIn />}
-                    mt={10}
-                    size={"xs"}
-                    to={PublicRoutes.LOGIN.route}
-                  >
-                    Iniciar sesión
-                  </Button>
-                  <Text c={"dimmed"} lineClamp={2} size={"2xs"}>
-                    ¿No tienes cuenta?{" "}
-                    <Text
-                      component={Link}
-                      span
-                      to={PublicRoutes.SIGNUP.route}
-                      c={"primary"}
-                      fw={700}
-                    >
-                      Registrate aqui
-                    </Text>
-                  </Text>
-                </>
-              )}
-              {userID && (
-                <>
-                  <Button
-                    color="danger"
-                    fullWidth
-                    leftSection={<LogOut />}
-                    onClick={() => {
-                      modalLogoutActions.open();
-                    }}
-                    variant="light"
-                  >
-                    Salir
-                  </Button>
-                </>
-              )}
+              <Button
+                color="danger"
+                fullWidth
+                leftSection={<LogOut />}
+                onClick={() => {
+                  modalLogoutActions.open();
+                }}
+                variant="light"
+              >
+                Salir
+              </Button>
             </Flex>
           </HoverCard.Dropdown>
         </HoverCard>
