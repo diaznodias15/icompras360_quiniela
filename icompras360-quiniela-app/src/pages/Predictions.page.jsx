@@ -266,13 +266,7 @@ const Predictions = () => {
             </Alert>
 
             {/* CUADRO DE PUNTOS ACUMULADOS Y ACIERTOS (STATS DASHBOARD) */}
-            <Card
-              w={"100%"}
-              shadow="md"
-              withBorder
-              p={"xl"}
-              bg={"var(--mantine-color-body)"}
-            >
+            <Card w={"100%"} shadow="md" withBorder p={"xl"} bg={"section"}>
               <Text
                 fw={700}
                 size="lg"
