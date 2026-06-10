@@ -207,7 +207,7 @@ const Predictions = () => {
                     alt={`Logo de balon del mundial`}
                     fit={"contain"}
                     h={100}
-                    src={`${import.meta.env.BASE_URL}img/logo-default.webp`}
+                    src={`${import.meta.env.BASE_URL}img/logo-icompras-white.webp`}
                     visibleFrom="sm"
                     w={150}
                   />
@@ -233,9 +233,9 @@ const Predictions = () => {
                 Mis puntuaciones
               </Text>
 
-              <Grid gutter={{ base: "md", md: "xl" }} mb="lg">
+              <Grid columns={20} gutter={{ base: "md", md: "xl" }} grow mb="lg">
                 {/* PUNTOS ACUMULADOS */}
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
                   <Card
                     h={"100%"}
                     shadow="xs"
@@ -270,7 +270,7 @@ const Predictions = () => {
                 </Grid.Col>
 
                 {/* ACIERTOS EXACTOS */}
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
                   <Card
                     h={"100%"}
                     shadow="xs"
@@ -305,7 +305,7 @@ const Predictions = () => {
                 </Grid.Col>
 
                 {/* ACIERTOS GANADOR */}
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
                   <Card
                     shadow="xs"
                     p="md"
@@ -340,7 +340,7 @@ const Predictions = () => {
                 </Grid.Col>
 
                 {/* EFECTIVIDAD */}
-                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
                   <Card
                     h={"100%"}
                     shadow="xs"
@@ -385,6 +385,48 @@ const Predictions = () => {
                         />
                       )}
                     </Group>
+                  </Card>
+                </Grid.Col>
+
+                {/* POSICIÓN */}
+                <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
+                  <Card
+                    h={"100%"}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #FDEAEA 0%, #E8F0FA 50%, #E8F5EA 100%)",
+                      borderLeft: "5px solid #E31B23",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                          Posición
+                        </Text>
+                        {loading || !estadisticas ? (
+                          <Skeleton height={36} width={60} />
+                        ) : (
+                          <Text size="3xl" fw={900} c="#E31B23">
+                            #{estadisticas.posicion ?? "-"}
+                          </Text>
+                        )}
+                      </Stack>
+                      <ThemeIcon
+                        size="lg"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #E31B23 0%, #0049AC 50%, #00A859 100%)",
+                        }}
+                      >
+                        <Crown size={20} color="white" />
+                      </ThemeIcon>
+                    </Group>
+                    <Text size="xs" c="dimmed" mt="sm">
+                      Ranking entre todos los participantes
+                    </Text>
                   </Card>
                 </Grid.Col>
               </Grid>
