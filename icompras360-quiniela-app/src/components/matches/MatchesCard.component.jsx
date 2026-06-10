@@ -119,7 +119,7 @@ export const MatchesCard = ({ data = {} }) => {
       loading: true,
       title: "Guardando...",
       message: "Estamos guardando tu pronóstico",
-      autoClose: false,
+      // autoClose: 10000,
       allowClose: false,
     });
 
@@ -138,6 +138,7 @@ export const MatchesCard = ({ data = {} }) => {
         title: "Pronóstico guardado",
         message: "Tu predicción fue registrada correctamente.",
         loading: false,
+        autoClose: 3000,
       });
     } catch (err) {
       console.log(err);

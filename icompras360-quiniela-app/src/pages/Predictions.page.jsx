@@ -13,14 +13,19 @@ import {
   Image,
   Stack,
   RingProgress,
+  ScrollArea,
   Badge,
   Divider,
   Skeleton,
   Chip,
+  ActionIcon,
+  Modal,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 // COMPONENTS
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component.jsx";
+import { AdaptiveModal } from "@components/common/AdaptiveModal/AdaptiveModal.component.jsx";
 import {
   MatchesCard,
   MatchesCardSkeleton,
@@ -31,7 +36,15 @@ import { getEstadisticasUsuario } from "@services/users/estadisticas.services";
 // STORE
 import { useUserStore } from "@store/user.store";
 // LUCIDE
-import { Calendar, Trophy, Info, Target, CheckCircle2 } from "lucide-react";
+import {
+  Calendar,
+  Trophy,
+  Info,
+  Target,
+  CheckCircle2,
+  Crown,
+  Gift,
+} from "lucide-react";
 
 const Predictions = () => {
   const [partidos, setPartidos] = useState([]);
@@ -39,8 +52,17 @@ const Predictions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [faseSeleccionada, setFaseSeleccionada] = useState("all");
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
 
   const token = useUserStore((state) => state.token);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      openModal();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [openModal]);
 
   const fases = useMemo(() => {
     const fasesMap = new Map();
@@ -54,7 +76,9 @@ const Predictions = () => {
 
   const partidosFiltrados = useMemo(() => {
     if (faseSeleccionada === "all") return partidos;
-    return partidos.filter((partido) => String(partido.fase.id) === faseSeleccionada);
+    return partidos.filter(
+      (partido) => String(partido.fase.id) === faseSeleccionada,
+    );
   }, [partidos, faseSeleccionada]);
 
   useEffect(() => {
@@ -77,7 +101,8 @@ const Predictions = () => {
           notifications.show({
             color: "danger",
             title: "Error",
-            message: "No se pudieron cargar los datos. Por favor, intente de nuevo.",
+            message:
+              "No se pudieron cargar los datos. Por favor, intente de nuevo.",
           });
         }
       } finally {
@@ -113,315 +138,445 @@ const Predictions = () => {
       `}</style>
       <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
         <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
-        <Flex align={"center"} direction={"column"} w={"100%"} gap={"lg"}>
-          {/* BANNER PRINCIPAL */}
-          <Alert color={"green"} w={"100%"}>
-            <Flex
-              align={"center"}
-              gap={15}
-              justify={"space-between"}
-              direction={{ base: "column", sm: "row" }}
-              py={10}
-            >
-              <Flex align="center" justify={"center"} w={"100%"}>
-                <Image
-                  alt={`Logo de balon del mundial`}
-                  fit={"contain"}
-                  h={100}
-                  src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
-                  visibleFrom="sm"
-                  w={150}
-                  style={{ animation: "spin 8s linear infinite" }}
-                />
-                <Flex
-                  direction={"column"}
-                  align={{ base: "center", sm: "flex-start" }}
-                >
-                  <Text
-                    c={"primary"}
-                    fw={850}
-                    size={"2xl"}
-                    style={{ letterSpacing: "1px" }}
-                    ta={"center"}
-                  >
-                    QUINIELA MUNDIALISTA
-                  </Text>
-                  <Flex align={"center"} gap={5}>
-                    <ThemeIcon color="gray" variant={"transparent"} size={"md"}>
-                      <Calendar size={18} />
-                    </ThemeIcon>
-                    <Text c={"dimmed"} size="sm" fw={500}>
-                      Del 11 de Junio al 19 de Julio, 2026
-                    </Text>
-                  </Flex>
-                </Flex>
-                <Image
-                  alt={`Logo de balon del mundial`}
-                  fit={"contain"}
-                  h={100}
-                  src={`${import.meta.env.BASE_URL}img/logo-default.webp`}
-                  visibleFrom="sm"
-                  w={150}
-                />
-              </Flex>
+          <Flex align={"center"} direction={"column"} w={"100%"} gap={"lg"}>
+            <Flex w={"100%"} justify={"flex-end"}>
+              <ActionIcon
+                variant="filled"
+                size="lg"
+                radius="md"
+                style={{ backgroundColor: "#E31B23" }}
+                onClick={openModal}
+              >
+                <Trophy size={20} />
+              </ActionIcon>
             </Flex>
-          </Alert>
 
-          {/* CUADRO DE PUNTOS ACUMULADOS Y ACIERTOS (STATS DASHBOARD) */}
-          <Card
-            w={"100%"}
-            shadow="md"
-            withBorder
-            p={"xl"}
-            bg={"var(--mantine-color-body)"}
-          >
-            <Text
-              fw={700}
-              size="lg"
-              mb="md"
-              c="primary"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            {/* BANNER PRINCIPAL */}
+            <Alert
+              w={"100%"}
+              style={{
+                background:
+                  "linear-gradient(135deg, #E31B23 0%, #0049AC 50%, #00A859 100%)",
+                border: "none",
+              }}
             >
-              Mis puntuaciones
-            </Text>
+              <Flex
+                align={"center"}
+                gap={15}
+                justify={"space-between"}
+                direction={{ base: "column", sm: "row" }}
+                py={10}
+              >
+                <Flex align="center" justify={"center"} w={"100%"}>
+                  <Image
+                    alt={`Logo de balon del mundial`}
+                    fit={"contain"}
+                    h={100}
+                    src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
+                    visibleFrom="sm"
+                    w={150}
+                    style={{ animation: "spin 8s linear infinite" }}
+                  />
+                  <Flex
+                    direction={"column"}
+                    align={{ base: "center", sm: "flex-start" }}
+                  >
+                    <Text
+                      c={"white"}
+                      fw={850}
+                      size={"2xl"}
+                      style={{ letterSpacing: "1px" }}
+                      ta={"center"}
+                    >
+                      QUINIELA MUNDIALISTA
+                    </Text>
+                    <Flex align={"center"} gap={5}>
+                      <ThemeIcon
+                        color="white"
+                        variant={"transparent"}
+                        size={"md"}
+                      >
+                        <Calendar size={18} />
+                      </ThemeIcon>
+                      <Text c={"white"} size="sm" fw={500}>
+                        Del 11 de Junio al 19 de Julio, 2026
+                      </Text>
+                    </Flex>
+                  </Flex>
+                  <Image
+                    alt={`Logo de balon del mundial`}
+                    fit={"contain"}
+                    h={100}
+                    src={`${import.meta.env.BASE_URL}img/logo-default.webp`}
+                    visibleFrom="sm"
+                    w={150}
+                  />
+                </Flex>
+              </Flex>
+            </Alert>
 
-            <Grid gutter={{ base: "md", md: "xl" }} mb="lg">
-              {/* PUNTOS ACUMULADOS */}
-              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                <Card
-                  h={"100%"}
-                  shadow="xs"
-                  p="md"
-                  withBorder
-                  bg="var(--mantine-color-primary-0)"
-                  style={{
-                    borderLeft: "5px solid var(--mantine-color-primary-5)",
-                  }}
-                >
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={2}>
-                      <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                        Puntos Acumulados
-                      </Text>
-                      {loading || !estadisticas ? (
-                        <Skeleton height={36} width={60} />
-                      ) : (
-                        <Text size="3xl" fw={900} c="primary">
-                          {estadisticas.puntos_acumulados} Pts
-                        </Text>
-                      )}
-                    </Stack>
-                    <ThemeIcon color="primary" size="lg">
-                      <Trophy size={20} />
-                    </ThemeIcon>
-                  </Group>
-                  <Text size="xs" c="dimmed" mt="sm">
-                    Suma total de aciertos de resultados
-                  </Text>
-                </Card>
-              </Grid.Col>
+            {/* CUADRO DE PUNTOS ACUMULADOS Y ACIERTOS (STATS DASHBOARD) */}
+            <Card
+              w={"100%"}
+              shadow="md"
+              withBorder
+              p={"xl"}
+              bg={"var(--mantine-color-body)"}
+            >
+              <Text
+                fw={700}
+                size="lg"
+                mb="md"
+                c="primary"
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                Mis puntuaciones
+              </Text>
 
-              {/* ACIERTOS EXACTOS */}
-              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                <Card
-                  h={"100%"}
-                  shadow="xs"
-                  p="md"
-                  withBorder
-                  bg="var(--mantine-color-green-0)"
-                  style={{
-                    borderLeft: "5px solid var(--mantine-color-success-5)",
-                  }}
-                >
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={2}>
-                      <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                        Aciertos Exactos
-                      </Text>
-                      {loading || !estadisticas ? (
-                        <Skeleton height={36} width={40} />
-                      ) : (
-                        <Text size="3xl" fw={900} c="success">
-                          {estadisticas.aciertos_exactos}
+              <Grid gutter={{ base: "md", md: "xl" }} mb="lg">
+                {/* PUNTOS ACUMULADOS */}
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Card
+                    h={"100%"}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    style={{
+                      background: "#FDEAEA",
+                      borderLeft: "5px solid #E31B23",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                          Puntos Acumulados
                         </Text>
-                      )}
-                    </Stack>
-                    <ThemeIcon color="success" size="lg">
-                      <Target size={20} />
-                    </ThemeIcon>
-                  </Group>
-                  <Text size="xs" c="dimmed" mt="sm">
-                    Marcadores exactos acertados (+3 Pts c/u)
-                  </Text>
-                </Card>
-              </Grid.Col>
+                        {loading || !estadisticas ? (
+                          <Skeleton height={36} width={60} />
+                        ) : (
+                          <Text size="3xl" fw={900} c="#E31B23">
+                            {estadisticas.puntos_acumulados} Pts
+                          </Text>
+                        )}
+                      </Stack>
+                      <ThemeIcon color="#E31B23" size="lg">
+                        <Trophy size={20} />
+                      </ThemeIcon>
+                    </Group>
+                    <Text size="xs" c="dimmed" mt="sm">
+                      Suma total de aciertos de resultados
+                    </Text>
+                  </Card>
+                </Grid.Col>
 
-              {/* ACIERTOS GANADOR */}
-              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                <Card
-                  shadow="xs"
-                  p="md"
-                  h={"100%"}
-                  withBorder
-                  bg="var(--mantine-color-blue-0)"
-                  style={{
-                    borderLeft: "5px solid var(--mantine-color-blue-5)",
-                  }}
-                >
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={2}>
-                      <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                        Resultados Simples
-                      </Text>
-                      {loading || !estadisticas ? (
-                        <Skeleton height={36} width={40} />
-                      ) : (
-                        <Text size="3xl" fw={900} c="blue">
-                          {estadisticas.aciertos_simples}
+                {/* ACIERTOS EXACTOS */}
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Card
+                    h={"100%"}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    style={{
+                      background: "#E8F0FA",
+                      borderLeft: "5px solid #0049AC",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                          Aciertos Exactos
                         </Text>
-                      )}
-                    </Stack>
-                    <ThemeIcon color="blue" size="lg">
-                      <CheckCircle2 size={20} />
-                    </ThemeIcon>
-                  </Group>
-                  <Text size="xs" c="dimmed" mt="sm">
-                    Ganador/Empate sin marcador exacto (+1 Pt)
-                  </Text>
-                </Card>
-              </Grid.Col>
+                        {loading || !estadisticas ? (
+                          <Skeleton height={36} width={40} />
+                        ) : (
+                          <Text size="3xl" fw={900} c="#0049AC">
+                            {estadisticas.aciertos_exactos}
+                          </Text>
+                        )}
+                      </Stack>
+                      <ThemeIcon color="#0049AC" size="lg">
+                        <Target size={20} />
+                      </ThemeIcon>
+                    </Group>
+                    <Text size="xs" c="dimmed" mt="sm">
+                      Marcadores exactos acertados (+3 Pts c/u)
+                    </Text>
+                  </Card>
+                </Grid.Col>
 
-              {/* EFECTIVIDAD */}
-              <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-                <Card
-                  h={"100%"}
-                  shadow="xs"
-                  p="md"
-                  withBorder
-                  bg="var(--mantine-color-yellow-0)"
-                >
-                  <Group justify="space-between" align="center">
-                    <Stack gap={2}>
-                      <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                        Predicciones
-                      </Text>
-                      {loading || !estadisticas ? (
-                        <Skeleton height={24} width={80} />
-                      ) : (
-                        <Text size="lg" fw={800}>
-                          {estadisticas.porcentaje_prediccion}%
+                {/* ACIERTOS GANADOR */}
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Card
+                    shadow="xs"
+                    p="md"
+                    h={"100%"}
+                    withBorder
+                    style={{
+                      background: "#E8F5EA",
+                      borderLeft: "5px solid #00A859",
+                    }}
+                  >
+                    <Group justify="space-between" align="flex-start">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                          Resultados Simples
                         </Text>
-                      )}
-                      <Text size="xs" c="dimmed">
-                        Efectividad de acierto
-                      </Text>
-                    </Stack>
-                    {loading || !estadisticas ? (
-                      <Skeleton circle height={70} />
-                    ) : (
-                      <RingProgress
-                        size={70}
-                        roundCaps
-                        thickness={6}
-                        sections={[
-                          {
-                            value: estadisticas.porcentaje_prediccion,
-                            color: "teal",
-                          },
-                        ]}
-                        label={
-                          <Text size="xs" fw={700} ta="center">
+                        {loading || !estadisticas ? (
+                          <Skeleton height={36} width={40} />
+                        ) : (
+                          <Text size="3xl" fw={900} c="#00A859">
+                            {estadisticas.aciertos_simples}
+                          </Text>
+                        )}
+                      </Stack>
+                      <ThemeIcon color="#00A859" size="lg">
+                        <CheckCircle2 size={20} />
+                      </ThemeIcon>
+                    </Group>
+                    <Text size="xs" c="dimmed" mt="sm">
+                      Ganador/Empate sin marcador exacto (+1 Pt)
+                    </Text>
+                  </Card>
+                </Grid.Col>
+
+                {/* EFECTIVIDAD */}
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Card
+                    h={"100%"}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    bg="var(--mantine-color-yellow-0)"
+                  >
+                    <Group justify="space-between" align="center">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                          Predicciones
+                        </Text>
+                        {loading || !estadisticas ? (
+                          <Skeleton height={24} width={80} />
+                        ) : (
+                          <Text size="lg" fw={800}>
                             {estadisticas.porcentaje_prediccion}%
                           </Text>
-                        }
-                      />
-                    )}
-                  </Group>
-                </Card>
-              </Grid.Col>
-            </Grid>
+                        )}
+                        <Text size="xs" c="dimmed">
+                          Efectividad de acierto
+                        </Text>
+                      </Stack>
+                      {loading || !estadisticas ? (
+                        <Skeleton circle height={70} />
+                      ) : (
+                        <RingProgress
+                          size={70}
+                          roundCaps
+                          thickness={6}
+                          sections={[
+                            {
+                              value: estadisticas.porcentaje_prediccion,
+                              color: "teal",
+                            },
+                          ]}
+                          label={
+                            <Text size="xs" fw={700} ta="center">
+                              {estadisticas.porcentaje_prediccion}%
+                            </Text>
+                          }
+                        />
+                      )}
+                    </Group>
+                  </Card>
+                </Grid.Col>
+              </Grid>
 
-            {/* SISTEMA DE PUNTUACIÓN INTEGRADO */}
-            <Alert
-              variant="light"
-              color="blue"
-              title="¿Cómo sumar puntos?"
-              icon={<Info size={18} />}
-              w={"100%"}
-            >
-              <List size="sm">
-                <List.Item>
-                  <Text component="span" fw={700} c="blue">
-                    3 Puntos (Marcador Exacto):
-                  </Text>{" "}
-                  Por acertar el marcador exacto de goles de ambos equipos.
-                </List.Item>
-                <List.Item>
-                  <Text component="span" fw={700} c="blue">
-                    1 Punto (Acierto Simple):
-                  </Text>{" "}
-                  Por acertar el ganador (o empate), pero no el marcador exacto.
-                </List.Item>
-              </List>
-            </Alert>
-          </Card>
+              {/* SISTEMA DE PUNTUACIÓN INTEGRADO */}
+              <Alert
+                variant="light"
+                color="blue"
+                title="¿Cómo sumar puntos?"
+                icon={<Info size={18} />}
+                w={"100%"}
+              >
+                <List size="sm">
+                  <List.Item>
+                    <Text component="span" fw={700} c="blue">
+                      3 Puntos (Marcador Exacto):
+                    </Text>{" "}
+                    Por acertar el marcador exacto de goles de ambos equipos.
+                  </List.Item>
+                  <List.Item>
+                    <Text component="span" fw={700} c="blue">
+                      1 Punto (Acierto Simple):
+                    </Text>{" "}
+                    Por acertar el ganador (o empate), pero no el marcador
+                    exacto.
+                  </List.Item>
+                </List>
+              </Alert>
+            </Card>
 
-          {/* LISTA DE PARTIDOS */}
-          <Flex direction="column" w="100%" gap="md" mt={10}>
-            <Group justify="space-between" align="center">
+            {/* LISTA DE PARTIDOS */}
+            <Flex direction="column" w="100%" gap="md" mt={10}>
+              <Group justify="space-between" align="center">
+                <Stack gap={2}>
+                  <Text fw={800} size="xl" c="primary">
+                    Partidos de la Copa del Mundo 2026
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    Pronostica los resultados de los próximos encuentros
+                  </Text>
+                </Stack>
+                <Badge color="blue" variant="filled" size="lg">
+                  {partidosFiltrados.length} Partidos
+                </Badge>
+              </Group>
+
+              {fases.length > 0 && (
+                <Chip.Group
+                  multiple={false}
+                  value={faseSeleccionada}
+                  onChange={setFaseSeleccionada}
+                >
+                  <Flex gap="xs" wrap="wrap">
+                    <Chip color="red" variant="filled" value="all">
+                      Todos
+                    </Chip>
+                    {fases.map((fase, index) => {
+                      const colors = ["#E31B23", "#0049AC", "#00A859"];
+                      const color = colors[index % colors.length];
+                      return (
+                        <Chip
+                          color={color}
+                          key={fase.id}
+                          variant="filled"
+                          value={fase.id}
+                        >
+                          {fase.nombre}
+                        </Chip>
+                      );
+                    })}
+                  </Flex>
+                </Chip.Group>
+              )}
+
+              <Divider my="xs" />
+
+              <Grid gap="lg">
+                {loading ? (
+                  skeletonCards
+                ) : error ? (
+                  <Grid.Col span={12}>
+                    <Alert color="danger" title="Error de conexión">
+                      Hubo un problema al cargar los partidos de la base de
+                      datos.
+                    </Alert>
+                  </Grid.Col>
+                ) : partidosFiltrados.length === 0 ? (
+                  <Grid.Col span={12}>
+                    <Alert color="blue" title="Sin partidos">
+                      No hay partidos disponibles en esta fase.
+                    </Alert>
+                  </Grid.Col>
+                ) : (
+                  matchesCards
+                )}
+              </Grid>
+            </Flex>
+          </Flex>
+        </ContainerSection>
+      </Flex>
+
+      <AdaptiveModal
+        opened={modalOpened}
+        onClose={closeModal}
+        size={"md"}
+        title={
+          <Flex align={"center"} gap={"xs"}>
+            <Crown size={24} color="#E31B23" />
+            <Text fw={700} size="lg">
+              Premiación
+            </Text>
+          </Flex>
+        }
+        zIndex={1100}
+      >
+        <Stack gap="md">
+          <Alert
+            variant="light"
+            color="blue"
+            title="Top 1"
+            icon={<Crown size={20} />}
+          >
+            <Group justify="space-between" align="flex-start">
               <Stack gap={2}>
-                <Text fw={800} size="xl" c="primary">
-                  Partidos de la Copa del Mundo 2026
+                <Text fw={600} size="lg" c="#0049AC">
+                  3 Meses Gratis
                 </Text>
                 <Text size="sm" c="dimmed">
-                  Pronostica los resultados de los próximos encuentros
+                  Suscripción gratuita para una farmacia
                 </Text>
               </Stack>
-              <Badge color="blue" variant="filled" size="lg">
-                {partidosFiltrados.length} Partidos
-              </Badge>
+              <Image
+                alt="Canadá"
+                src={`${import.meta.env.BASE_URL}img/usa.webp`}
+                h={100}
+                w={70}
+                fit="contain"
+              />
             </Group>
+          </Alert>
 
-            {fases.length > 0 && (
-              <Chip.Group multiple={false} value={faseSeleccionada} onChange={setFaseSeleccionada}>
-                <Flex gap="xs" wrap="wrap">
-                  <Chip color="blue" variant="filled" value="all">
-                    Todos
-                  </Chip>
-                  {fases.map((fase) => (
-                    <Chip key={fase.id} color="blue" variant="filled" value={fase.id}>
-                      {fase.nombre}
-                    </Chip>
-                  ))}
-                </Flex>
-              </Chip.Group>
-            )}
+          <Alert
+            variant="light"
+            color="red"
+            title="Top 2"
+            icon={<Gift size={20} />}
+          >
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={2}>
+                <Text fw={600} size="lg" c="#E31B23">
+                  2 Meses Gratis
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Suscripción gratuita para una farmacia
+                </Text>
+              </Stack>
+              <Image
+                alt="USA"
+                src={`${import.meta.env.BASE_URL}img/canada.webp`}
+                h={100}
+                w={70}
+                fit="contain"
+              />
+            </Group>
+          </Alert>
 
-            <Divider my="xs" />
-
-            <Grid gap="lg">
-              {loading ? (
-                skeletonCards
-              ) : error ? (
-                <Grid.Col span={12}>
-                  <Alert color="danger" title="Error de conexión">
-                    Hubo un problema al cargar los partidos de la base de datos.
-                  </Alert>
-                </Grid.Col>
-              ) : partidosFiltrados.length === 0 ? (
-                <Grid.Col span={12}>
-                  <Alert color="blue" title="Sin partidos">
-                    No hay partidos disponibles en esta fase.
-                  </Alert>
-                </Grid.Col>
-              ) : (
-                matchesCards
-              )}
-            </Grid>
-          </Flex>
-        </Flex>
-      </ContainerSection>
-    </Flex>
+          <Alert
+            variant="light"
+            color="green"
+            title="Top 3"
+            icon={<Trophy size={20} />}
+          >
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={2}>
+                <Text fw={600} size="lg" c="#00A859">
+                  1 Mes Gratis
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Suscripción gratuita para una farmacia
+                </Text>
+              </Stack>
+              <Image
+                alt="México"
+                src={`${import.meta.env.BASE_URL}img/mexico.webp`}
+                h={100}
+                w={70}
+                fit="contain"
+              />
+            </Group>
+          </Alert>
+        </Stack>
+      </AdaptiveModal>
     </>
   );
 };
