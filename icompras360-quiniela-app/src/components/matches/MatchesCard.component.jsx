@@ -52,11 +52,49 @@ export const MatchesCard = ({ data = {} }) => {
   const token = useUserStore((state) => state.token);
 
   // STATES
-  const [isSaving, setIsSaving] = useState(false);
   const [pronostico, setPronostico] = useState({
     golesLocal: data.pronostico?.golesLocal ?? "",
     golesVisitante: data.pronostico?.golesVisitante ?? "",
   });
+
+  // Calcula los puntos obtenidos comparando pronóstico con el marcador oficial
+  const calcPuntos = () => {
+    const hayResultado =
+      data.goles_local != null && data.goles_visitante != null;
+    const hayPronostico =
+      pronostico.golesLocal !== "" && pronostico.golesVisitante !== "";
+    if (!hayResultado || !hayPronostico) return null;
+
+    const rLocal = Number(data.goles_local);
+    const rVisitante = Number(data.goles_visitante);
+    const pLocal = Number(pronostico.golesLocal);
+    const pVisitante = Number(pronostico.golesVisitante);
+
+    // +3: marcador exacto
+    if (pLocal === rLocal && pVisitante === rVisitante) return 3;
+
+    // Ganador real
+    const ganadorReal =
+      rLocal > rVisitante
+        ? "local"
+        : rVisitante > rLocal
+          ? "visitante"
+          : "empate";
+    // Ganador pronosticado
+    const ganadorPred =
+      pLocal > pVisitante
+        ? "local"
+        : pVisitante > pLocal
+          ? "visitante"
+          : "empate";
+
+    // +1: acertó el ganador o el empate
+    if (ganadorReal === ganadorPred) return 1;
+
+    return 0;
+  };
+
+  const puntos = calcPuntos();
 
   // FUNCTIONS
 
@@ -299,6 +337,77 @@ export const MatchesCard = ({ data = {} }) => {
             </Badge>
           </Flex>
         </Flex>
+
+        {/* Marcador oficial del partido */}
+        {data.goles_local != null && data.goles_visitante != null && (
+          <>
+            <Divider
+              my="sm"
+              label={
+                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+                  Resultado oficial
+                </Text>
+              }
+              labelPosition="center"
+              style={{ opacity: 0.7 }}
+            />
+            <Flex justify="center" align="center" gap="md" mb="sm">
+              <Text
+                fw={900}
+                size="2xl"
+                c="primary"
+                style={{
+                  minWidth: "36px",
+                  textAlign: "center",
+                  letterSpacing: "2px",
+                }}
+              >
+                {data.goles_local}
+              </Text>
+              <Text fw={700} c="dimmed" size="lg">
+                -
+              </Text>
+              <Text
+                fw={900}
+                size="2xl"
+                c="primary"
+                style={{
+                  minWidth: "36px",
+                  textAlign: "center",
+                  letterSpacing: "2px",
+                }}
+              >
+                {data.goles_visitante}
+              </Text>
+
+              {/* Badge de puntos obtenidos */}
+              {puntos != null && puntos > 0 && (
+                <Badge
+                  color={puntos === 3 ? "success" : "blue"}
+                  variant="filled"
+                  size="lg"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 900,
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  +{puntos}
+                </Badge>
+              )}
+              {puntos === 0 && (
+                <Badge
+                  color="red"
+                  variant="light"
+                  size="lg"
+                  style={{ fontSize: "14px", fontWeight: 700 }}
+                >
+                  +0
+                </Badge>
+              )}
+            </Flex>
+          </>
+        )}
 
         <Divider my="md" style={{ opacity: 0.6 }} />
 

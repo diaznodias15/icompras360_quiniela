@@ -164,10 +164,15 @@ const Predictions = () => {
               direction={{ base: "column", sm: "row" }}
               py={10}
             >
-              <Flex>
-                <ThemeIcon color="yellow" variant={"transparent"} size={60}>
-                  <Trophy size={60} />
-                </ThemeIcon>
+              <Flex align="center" justify={"center"} w={"100%"}>
+                <Image
+                  alt={`Logo de balon del mundial`}
+                  fit={"contain"}
+                  h={100}
+                  src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
+                  visibleFrom="sm"
+                  w={150}
+                />
                 <Flex
                   direction={"column"}
                   align={{ base: "center", sm: "flex-start" }}
@@ -179,7 +184,7 @@ const Predictions = () => {
                     style={{ letterSpacing: "1px" }}
                     ta={"center"}
                   >
-                    QUINIELA ICOMPRAS360 2026
+                    QUINIELA MUNDIALISTA
                   </Text>
                   <Flex align={"center"} gap={5}>
                     <ThemeIcon color="gray" variant={"transparent"} size={"md"}>
@@ -190,15 +195,15 @@ const Predictions = () => {
                     </Text>
                   </Flex>
                 </Flex>
+                <Image
+                  alt={`Logo de balon del mundial`}
+                  fit={"contain"}
+                  h={100}
+                  src={`${import.meta.env.BASE_URL}img/logo-default.webp`}
+                  visibleFrom="sm"
+                  w={150}
+                />
               </Flex>
-              <Image
-                alt={`Logo de balon del mundial`}
-                darkHidden
-                fit={"contain"}
-                h={100}
-                src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
-                w={150}
-              />
             </Flex>
           </Alert>
 
@@ -364,7 +369,7 @@ const Predictions = () => {
               icon={<Info size={18} />}
               w={"100%"}
             >
-              <List size="sm" withPadding>
+              <List size="sm">
                 <List.Item>
                   <Text component="span" fw={700} c="blue">
                     3 Puntos (Marcador Exacto):

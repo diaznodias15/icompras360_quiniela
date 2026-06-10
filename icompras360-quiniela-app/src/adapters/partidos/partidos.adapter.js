@@ -7,6 +7,8 @@ export const partidosAdapter = (response) => {
   const data = response?.data || [];
   return data.map((partido) => ({
     id: partido.id,
+    goles_local: partido?.goles_local,
+    goles_visitante: partido?.goles_visitante,
     fase: {
       id: partido.fase?.id,
       nombre: partido.fase?.nombre,
