@@ -6,5 +6,6 @@ export const estadisticasAdapter = (response) => {
     aciertos_simples: data?.aciertos_simples ?? 0,
     porcentaje_prediccion: data?.porcentaje_prediccion ?? 0,
     posicion: data?.posicion ?? null,
+    total_participantes: data?.total_participantes ?? 0,
   };
 };

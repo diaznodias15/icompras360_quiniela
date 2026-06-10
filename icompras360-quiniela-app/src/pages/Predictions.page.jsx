@@ -410,7 +410,8 @@ const Predictions = () => {
                           <Skeleton height={36} width={60} />
                         ) : (
                           <Text size="3xl" fw={900} c="#E31B23">
-                            #{estadisticas.posicion ?? "-"}
+                            {estadisticas.posicion} de{" "}
+                            {estadisticas.total_participantes}
                           </Text>
                         )}
                       </Stack>
