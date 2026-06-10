@@ -104,8 +104,15 @@ const Predictions = () => {
   });
 
   return (
-    <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
-      <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
+    <>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
+        <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
         <Flex align={"center"} direction={"column"} w={"100%"} gap={"lg"}>
           {/* BANNER PRINCIPAL */}
           <Alert color={"green"} w={"100%"}>
@@ -124,6 +131,7 @@ const Predictions = () => {
                   src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
                   visibleFrom="sm"
                   w={150}
+                  style={{ animation: "spin 8s linear infinite" }}
                 />
                 <Flex
                   direction={"column"}
@@ -414,6 +422,7 @@ const Predictions = () => {
         </Flex>
       </ContainerSection>
     </Flex>
+    </>
   );
 };
 
