@@ -13,6 +13,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  TextInput,
 } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -99,11 +100,14 @@ export const MatchesCard = ({ data = {} }) => {
 
   const handlePredictionChange = useCallback(
     (team, val) => {
+      const stringVal = val === "" || val === null || val === undefined 
+        ? "" 
+        : String(val);
       setPronostico((prev) => {
         if (team === "local") {
-          return { ...prev, golesLocal: val };
+          return { ...prev, golesLocal: stringVal };
         } else {
-          return { ...prev, golesVisitante: val };
+          return { ...prev, golesVisitante: stringVal };
         }
       });
       handleSavePrediction();
@@ -113,14 +117,13 @@ export const MatchesCard = ({ data = {} }) => {
 
   const handleSavePrediction = useDebouncedCallback(async () => {
     if (isLocked) return;
-    if (pronostico.golesLocal == "" || pronostico.golesVisitante == "") {
+    if (pronostico.golesLocal === "" || pronostico.golesVisitante === "") {
       return;
     }
     const id = notifications.show({
       loading: true,
       title: "Guardando...",
       message: "Estamos guardando tu pronóstico",
-      // autoClose: 10000,
       allowClose: false,
     });
 
@@ -128,8 +131,8 @@ export const MatchesCard = ({ data = {} }) => {
       await guardarPronostico(
         {
           partido_id: data.id,
-          goles_local: pronostico.golesLocal,
-          goles_visitante: pronostico.golesVisitante,
+          goles_local: parseInt(pronostico.golesLocal, 10) || 0,
+          goles_visitante: parseInt(pronostico.golesVisitante, 10) || 0,
         },
         { authToken: token },
       );
@@ -253,41 +256,48 @@ export const MatchesCard = ({ data = {} }) => {
 
           {/* Inputs Quiniela */}
           <Flex direction="column" align="center" gap="sm" w="50%">
+            {!isLocked && pronostico.golesLocal === "" && pronostico.golesVisitante === "" && (
+              <Text size="xs" c="dimmed" fs="italic" mb={4}>
+                Coloca aquí tu predicción
+              </Text>
+            )}
             <Group gap={8} justify="center" align="center">
-              <NumberInput
+              <TextInput
                 placeholder="-"
                 w={50}
-                min={0}
-                max={99}
                 size="md"
-                hideControls
                 value={pronostico.golesLocal}
                 disabled={isLocked}
-                onChange={(val) => handlePredictionChange("local", val)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                  handlePredictionChange("local", val);
+                }}
                 styles={{
                   input: {
                     textAlign: "center",
                     fontWeight: "bold",
+                    height: "40px",
                   },
                 }}
               />
               <Text fw={800} c="dimmed">
                 VS
               </Text>
-              <NumberInput
+              <TextInput
                 placeholder="-"
                 w={50}
-                min={0}
-                max={99}
                 size="md"
-                hideControls
                 value={pronostico.golesVisitante}
                 disabled={isLocked}
-                onChange={(val) => handlePredictionChange("visitante", val)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                  handlePredictionChange("visitante", val);
+                }}
                 styles={{
                   input: {
                     textAlign: "center",
                     fontWeight: "bold",
+                    height: "40px",
                   },
                 }}
               />

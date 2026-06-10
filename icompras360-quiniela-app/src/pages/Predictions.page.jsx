@@ -20,6 +20,8 @@ import {
   Chip,
   ActionIcon,
   Modal,
+  LoadingOverlay,
+  Box,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -56,32 +58,14 @@ const Predictions = () => {
     useDisclosure(false);
 
   const token = useUserStore((state) => state.token);
+  const isAuthenticated = !!token;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      openModal();
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [openModal]);
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
 
-  const fases = useMemo(() => {
-    const fasesMap = new Map();
-    partidos.forEach((partido) => {
-      if (partido.fase?.id != null && partido.fase?.nombre) {
-        fasesMap.set(String(partido.fase.id), partido.fase.nombre);
-      }
-    });
-    return Array.from(fasesMap, ([id, nombre]) => ({ id, nombre }));
-  }, [partidos]);
-
-  const partidosFiltrados = useMemo(() => {
-    if (faseSeleccionada === "all") return partidos;
-    return partidos.filter(
-      (partido) => String(partido.fase.id) === faseSeleccionada,
-    );
-  }, [partidos, faseSeleccionada]);
-
-  useEffect(() => {
     let active = true;
     const fetchData = async () => {
       try {
@@ -94,10 +78,14 @@ const Predictions = () => {
           setPartidos(partidosData);
           setEstadisticas(estadisticasData);
           setError(false);
+          setTimeout(() => {
+            openModal();
+          }, 1000);
         }
       } catch (err) {
         if (active) {
           setError(true);
+          setLoading(false);
           notifications.show({
             color: "danger",
             title: "Error",
@@ -116,7 +104,26 @@ const Predictions = () => {
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [token, isAuthenticated, openModal]);
+
+  const showFullLoader = loading || !isAuthenticated;
+
+  const fases = useMemo(() => {
+    const fasesMap = new Map();
+    partidos.forEach((partido) => {
+      if (partido.fase?.id != null && partido.fase?.nombre) {
+        fasesMap.set(String(partido.fase.id), partido.fase.nombre);
+      }
+    });
+    return Array.from(fasesMap, ([id, nombre]) => ({ id, nombre }));
+  }, [partidos]);
+
+  const partidosFiltrados = useMemo(() => {
+    if (faseSeleccionada === "all") return partidos;
+    return partidos.filter(
+      (partido) => String(partido.fase.id) === faseSeleccionada,
+    );
+  }, [partidos, faseSeleccionada]);
 
   const skeletonCards = useMemo(() => {
     return Array.from({ length: 6 }).map((_, i) => (
@@ -136,6 +143,14 @@ const Predictions = () => {
           to { transform: rotate(360deg); }
         }
       `}</style>
+      <LoadingOverlay
+        pos={"fixed"}
+        visible={showFullLoader}
+        overlayProps={{ blur: 100, color: "#000", opacity: 1, zIndex: 1300 }}
+        loaderProps={{ type: "bars", color: "#E31B23" }}
+        zIndex={1300}
+      />
+
       <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
         <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
           <Flex align={"center"} direction={"column"} w={"100%"} gap={"lg"}>
