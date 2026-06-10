@@ -100,9 +100,8 @@ export const MatchesCard = ({ data = {} }) => {
 
   const handlePredictionChange = useCallback(
     (team, val) => {
-      const stringVal = val === "" || val === null || val === undefined 
-        ? "" 
-        : String(val);
+      const stringVal =
+        val === "" || val === null || val === undefined ? "" : String(val);
       setPronostico((prev) => {
         if (team === "local") {
           return { ...prev, golesLocal: stringVal };
@@ -256,11 +255,13 @@ export const MatchesCard = ({ data = {} }) => {
 
           {/* Inputs Quiniela */}
           <Flex direction="column" align="center" gap="sm" w="50%">
-            {!isLocked && pronostico.golesLocal === "" && pronostico.golesVisitante === "" && (
-              <Text size="xs" c="dimmed" fs="italic" mb={4}>
-                Coloca aquí tu predicción
-              </Text>
-            )}
+            {!isLocked &&
+              pronostico.golesLocal === "" &&
+              pronostico.golesVisitante === "" && (
+                <Text size="xs" c="primary" fs="italic" mb={4}>
+                  Coloca aquí tu predicción
+                </Text>
+              )}
             <Group gap={8} justify="center" align="center">
               <TextInput
                 placeholder="-"

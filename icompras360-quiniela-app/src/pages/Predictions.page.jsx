@@ -20,7 +20,6 @@ import {
   Chip,
   ActionIcon,
   Modal,
-  LoadingOverlay,
   Box,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -142,14 +141,50 @@ const Predictions = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-30px); }
+        }
+        .ball-spin {
+          animation: spin 0.8s linear infinite;
+        }
+        .ball-bounce {
+          animation: bounce 0.6s ease-in-out infinite;
+        }
       `}</style>
-      <LoadingOverlay
-        pos={"fixed"}
-        visible={showFullLoader}
-        overlayProps={{ blur: 100, color: "#000", opacity: 1, zIndex: 1300 }}
-        loaderProps={{ type: "bars", color: "#E31B23" }}
-        zIndex={1300}
-      />
+      {showFullLoader && (
+        <Box
+          pos="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          style={{ backgroundColor: "rgba(0,0,0,0.85)", zIndex: 1301 }}
+        >
+          <Flex
+            align={"center"}
+            justify={"center"}
+            h={"100vh"}
+            w={"100%"}
+            direction={"column"}
+            gap="lg"
+          >
+            <Flex align={"center"} className="ball-bounce" justify={"center"}>
+              <Image
+                className="ball-spin"
+                src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
+                alt="Cargando..."
+                h={150}
+                w={150}
+                fit="contain"
+              />
+            </Flex>
+            <Text c="white" fw={700} size="lg">
+              Cargando partidos...
+            </Text>
+          </Flex>
+        </Box>
+      )}
 
       <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
         <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
