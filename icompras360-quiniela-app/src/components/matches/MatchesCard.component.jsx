@@ -1,0 +1,340 @@
+// REACT
+import { useCallback, useState } from "react";
+// MANTINE
+import {
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Flex,
+  Grid,
+  Group,
+  Loader,
+  NumberInput,
+  Skeleton,
+  Stack,
+  Text,
+} from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+// LUCIDE
+import { Clock, Lock, MapPin, Save } from "lucide-react";
+// SERVICES
+import { guardarPronostico } from "@services/partidos/partidos.services";
+// STORE
+import { useUserStore } from "@store/user.store";
+// UTILITIES
+import {
+  formatMatchDate,
+  getFlagUrl,
+  isMatchLocked,
+} from "@utilities/matchesUtilities.utility.jsx";
+
+export const MatchesCardSkeleton = () => {
+  return (
+    <Grid.Col span={{ base: 12, md: 6 }}>
+      <Card withBorder p="xl" radius="md">
+        <Skeleton height={20} width="30%" radius="xl" mb="md" />
+        <Flex justify="space-between" align="center" my="lg">
+          <Skeleton height={40} circle />
+          <Skeleton height={30} width="40%" />
+          <Skeleton height={40} circle />
+        </Flex>
+        <Skeleton height={15} width="60%" radius="xl" mt="md" />
+        <Skeleton height={15} width="50%" radius="xl" mt="xs" />
+      </Card>
+    </Grid.Col>
+  );
+};
+
+export const MatchesCard = ({ data = {} }) => {
+  const isLocked = isMatchLocked(data.fecha_hora_utc);
+  const token = useUserStore((state) => state.token);
+
+  // STATES
+  const [isSaving, setIsSaving] = useState(false);
+  const [pronostico, setPronostico] = useState({
+    golesLocal: data.pronostico?.golesLocal ?? "",
+    golesVisitante: data.pronostico?.golesVisitante ?? "",
+  });
+
+  // FUNCTIONS
+
+  const handlePredictionChange = useCallback(
+    (team, val) => {
+      setPronostico((prev) => {
+        if (team === "local") {
+          return { ...prev, golesLocal: val };
+        } else {
+          return { ...prev, golesVisitante: val };
+        }
+      });
+    },
+    [data.id],
+  );
+
+  const handleSavePrediction = async () => {
+    if (isLocked) return;
+    if (pronostico.golesLocal == "" || pronostico.golesVisitante == "") {
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await guardarPronostico(
+        {
+          partido_id: data.id,
+          goles_local: pronostico.golesLocal,
+          goles_visitante: pronostico.golesVisitante,
+        },
+        { authToken: token },
+      );
+      notifications.show({
+        color: "success",
+        title: "Pronóstico guardado",
+        message: "Tu predicción fue registrada correctamente.",
+      });
+    } catch (err) {
+      console.log(err);
+      notifications.show({
+        color: "danger",
+        title: "Error al guardar",
+        message:
+          err?.data?.message ||
+          "No se pudo guardar el pronóstico. Intenta de nuevo.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Grid.Col span={{ base: 12, md: 6 }}>
+      <Card
+        withBorder
+        p="lg"
+        radius="md"
+        shadow="sm"
+        style={{
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          cursor: isLocked ? "not-allowed" : "pointer",
+          opacity: isLocked ? 0.85 : 1,
+          backgroundColor: isLocked ? "var(--mantine-color-gray-0)" : undefined,
+        }}
+        className="match-card"
+        onMouseEnter={(e) => {
+          if (!isLocked) {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isLocked) {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
+          }
+        }}
+      >
+        {/* Header: Fase y Grupo */}
+        <Group justify="space-between" mb="md">
+          <Badge color="blue" variant="light" size="sm">
+            {data.fase?.nombre || "Fase de Grupos"}
+          </Badge>
+          <Group gap={6}>
+            {isLocked && (
+              <Badge
+                color="red"
+                variant="filled"
+                size="sm"
+                leftSection={<Lock size={10} />}
+              >
+                Bloqueado
+              </Badge>
+            )}
+            <Badge color="violet" variant="outline" size="sm">
+              Grupo {data.grupo || "N/A"}
+            </Badge>
+          </Group>
+        </Group>
+
+        {/* Equipos y Predicción */}
+        <Flex justify="space-between" align="center" py="sm" gap="xs">
+          {/* Local */}
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            w="35%"
+            gap="xs"
+          >
+            {data.local?.codigo_iso ? (
+              <img
+                src={getFlagUrl(data.local.codigo_iso)}
+                alt={data.local.nombre}
+                style={{
+                  width: "48px",
+                  height: "36px",
+                  objectFit: "cover",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                  border: "1px solid rgba(0,0,0,0.1)",
+                }}
+              />
+            ) : (
+              <Text size="3xl" style={{ lineHeight: 1 }}>
+                {data.local?.bandera_icono || "🏳️"}
+              </Text>
+            )}
+            <Text
+              fw={750}
+              ta="center"
+              size="sm"
+              style={{
+                minHeight: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {data.local?.nombre || "Equipo Local"}
+            </Text>
+            <Badge color="gray" variant="dot">
+              {data.local?.codigo_fifa}
+            </Badge>
+          </Flex>
+
+          {/* Inputs Quiniela */}
+          <Flex direction="column" align="center" gap="sm" w="30%">
+            <Group gap={8} justify="center" align="center">
+              <NumberInput
+                placeholder="-"
+                w={50}
+                min={0}
+                max={99}
+                size="sm"
+                hideControls
+                value={pronostico.golesLocal}
+                disabled={isLocked}
+                onChange={(val) => handlePredictionChange("local", val)}
+                styles={{
+                  input: {
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  },
+                }}
+              />
+              <Text fw={800} c="dimmed">
+                VS
+              </Text>
+              <NumberInput
+                placeholder="-"
+                w={50}
+                min={0}
+                max={99}
+                size="sm"
+                hideControls
+                value={pronostico.golesVisitante}
+                disabled={isLocked}
+                onChange={(val) => handlePredictionChange("visitante", val)}
+                styles={{
+                  input: {
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  },
+                }}
+              />
+            </Group>
+            <Button
+              variant="light"
+              color={isLocked ? "gray" : "blue"}
+              size="xs"
+              leftSection={
+                isLocked ? (
+                  <Lock size={14} />
+                ) : isSaving ? (
+                  <Loader size={14} color="blue" />
+                ) : (
+                  <Save size={14} />
+                )
+              }
+              onClick={() => handleSavePrediction(data.id)}
+              disabled={isLocked || isSaving}
+              loading={isSaving}
+            >
+              {isLocked ? "Cerrado" : isSaving ? "Guardando..." : "Guardar"}
+            </Button>
+          </Flex>
+
+          {/* Visitante */}
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            w="35%"
+            gap="xs"
+          >
+            {data.visitante?.codigo_iso ? (
+              <img
+                src={getFlagUrl(data.visitante.codigo_iso)}
+                alt={data.visitante.nombre}
+                style={{
+                  width: "48px",
+                  height: "36px",
+                  objectFit: "cover",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                  border: "1px solid rgba(0,0,0,0.1)",
+                }}
+              />
+            ) : (
+              <Text size="3xl" style={{ lineHeight: 1 }}>
+                {data.visitante?.bandera_icono || "🏳️"}
+              </Text>
+            )}
+            <Text
+              fw={750}
+              ta="center"
+              size="sm"
+              style={{
+                minHeight: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {data.visitante?.nombre || "Equipo Visitante"}
+            </Text>
+            <Badge color="gray" variant="dot">
+              {data.visitante?.codigo_fifa}
+            </Badge>
+          </Flex>
+        </Flex>
+
+        <Divider my="md" style={{ opacity: 0.6 }} />
+
+        {/* Footer: Fecha y Estadio */}
+        <Stack gap={6}>
+          <Group gap={6}>
+            <Clock size={14} className="text-dimmed" />
+            <Text size="xs" c="dimmed" fw={600}>
+              {formatMatchDate(data.fecha_hora_utc)} (Hora Local)
+            </Text>
+          </Group>
+          <Group gap={6} align="flex-start" wrap="nowrap">
+            <MapPin
+              size={14}
+              className="text-dimmed"
+              style={{ marginTop: "2px" }}
+            />
+            <Text
+              size="xs"
+              c="dimmed"
+              fw={500}
+              style={{ wordBreak: "break-word" }}
+            >
+              {data.estadio_completo || "Estadio por confirmar"}
+            </Text>
+          </Group>
+        </Stack>
+      </Card>
+    </Grid.Col>
+  );
+};

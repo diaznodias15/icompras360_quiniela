@@ -1,5 +1,5 @@
 // REACT
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 // MANTINE
 import {
   Alert,
@@ -22,8 +22,15 @@ import {
 import { notifications } from "@mantine/notifications";
 // COMPONENTS
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component.jsx";
+import {
+  MatchesCard,
+  MatchesCardSkeleton,
+} from "@components/matches/MatchesCard.component.jsx";
 // SERVICES
-import { getPartidosLista, guardarPronostico } from "@services/partidos/partidos.services";
+import {
+  getPartidosLista,
+  guardarPronostico,
+} from "@services/partidos/partidos.services";
 // STORE
 import { useUserStore } from "@store/user.store";
 // LUCIDE
@@ -66,7 +73,8 @@ const Predictions = () => {
           notifications.show({
             color: "danger",
             title: "Error",
-            message: "No se pudieron cargar los partidos. Por favor, intente de nuevo.",
+            message:
+              "No se pudieron cargar los partidos. Por favor, intente de nuevo.",
           });
         }
       } finally {
@@ -81,40 +89,6 @@ const Predictions = () => {
       active = false;
     };
   }, [token]);
-
-  const formatMatchDate = (dateString) => {
-    if (!dateString) return "";
-    try {
-      const date = new Date(dateString.replace(" ", "T") + "Z");
-      return date.toLocaleString("es-ES", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
-
-  const getFlagUrl = (isoCode) => {
-    if (!isoCode) return null;
-    return `https://flagcdn.com/72x54/${isoCode.toLowerCase()}.webp`;
-  };
-
-  const isMatchLocked = (dateString) => {
-    if (!dateString) return true;
-    try {
-      const matchTime = new Date(dateString.replace(" ", "T") + "Z").getTime();
-      const currentTime = Date.now();
-      const thirtyMinutesInMs = 30 * 60 * 1000;
-      return currentTime >= (matchTime - thirtyMinutesInMs);
-    } catch (e) {
-      return true;
-    }
-  };
 
   const handlePredictionChange = (matchId, team, val) => {
     setPredictions((prev) => ({
@@ -132,7 +106,8 @@ const Predictions = () => {
       notifications.show({
         color: "yellow",
         title: "Atención",
-        message: "Por favor, ingresa los goles para ambos equipos antes de guardar.",
+        message:
+          "Por favor, ingresa los goles para ambos equipos antes de guardar.",
       });
       return;
     }
@@ -156,12 +131,24 @@ const Predictions = () => {
       notifications.show({
         color: "danger",
         title: "Error al guardar",
-        message: err?.data?.message || "No se pudo guardar el pronóstico. Intenta de nuevo.",
+        message:
+          err?.data?.message ||
+          "No se pudo guardar el pronóstico. Intenta de nuevo.",
       });
     } finally {
       setSavingPredictions((prev) => ({ ...prev, [matchId]: false }));
     }
   };
+
+  const skeletonCards = useMemo(() => {
+    return Array.from({ length: 6 }).map((_, i) => (
+      <MatchesCardSkeleton key={i} />
+    ));
+  }, []);
+
+  const matchesCards = partidos.map((partido) => {
+    return <MatchesCard key={partido.id} data={partido} />;
+  });
 
   return (
     <Flex align={"center"} direction={"column"} w={"100%"} pb={50}>
@@ -401,207 +388,25 @@ const Predictions = () => {
 
             <Divider my="xs" />
 
-            {loading ? (
-              <Grid gutter="md">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Grid.Col key={i} span={{ base: 12, md: 6 }}>
-                    <Card withBorder p="xl" radius="md">
-                      <Skeleton height={20} width="30%" radius="xl" mb="md" />
-                      <Flex justify="space-between" align="center" my="lg">
-                        <Skeleton height={40} circle />
-                        <Skeleton height={30} width="40%" />
-                        <Skeleton height={40} circle />
-                      </Flex>
-                      <Skeleton height={15} width="60%" radius="xl" mt="md" />
-                      <Skeleton height={15} width="50%" radius="xl" mt="xs" />
-                    </Card>
-                  </Grid.Col>
-                ))}
-              </Grid>
-            ) : error ? (
-              <Alert color="danger" title="Error de conexión">
-                Hubo un problema al cargar los partidos de la base de datos.
-              </Alert>
-            ) : partidos.length === 0 ? (
-              <Alert color="blue" title="Sin partidos">
-                No hay partidos disponibles en este momento.
-              </Alert>
-            ) : (
-              <Grid gutter="lg">
-                 {partidos.map((partido) => {
-                  const currentPred = predictions[partido.id] || {};
-                  const isLocked = isMatchLocked(partido.fecha_hora_utc);
-                  const isSaving = savingPredictions[partido.id] ?? false;
-                  return (
-                    <Grid.Col key={partido.id} span={{ base: 12, md: 6 }}>
-                      <Card
-                        withBorder
-                        p="lg"
-                        radius="md"
-                        shadow="sm"
-                        style={{
-                          transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                          cursor: isLocked ? "not-allowed" : "pointer",
-                          opacity: isLocked ? 0.85 : 1,
-                          backgroundColor: isLocked ? "var(--mantine-color-gray-0)" : undefined,
-                        }}
-                        className="match-card"
-                        onMouseEnter={(e) => {
-                          if (!isLocked) {
-                            e.currentTarget.style.transform = "translateY(-4px)";
-                            e.currentTarget.style.boxShadow = "var(--mantine-shadow-md)";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isLocked) {
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow = "var(--mantine-shadow-sm)";
-                          }
-                        }}
-                      >
-                        {/* Header: Fase y Grupo */}
-                        <Group justify="space-between" mb="md">
-                          <Badge color="blue" variant="light" size="sm">
-                            {partido.fase?.nombre || "Fase de Grupos"}
-                          </Badge>
-                          <Group gap={6}>
-                            {isLocked && (
-                              <Badge color="red" variant="filled" size="sm" leftSection={<Lock size={10} />}>
-                                Bloqueado
-                              </Badge>
-                            )}
-                            <Badge color="violet" variant="outline" size="sm">
-                              Grupo {partido.grupo || "N/A"}
-                            </Badge>
-                          </Group>
-                        </Group>
-
-                        {/* Equipos y Predicción */}
-                        <Flex justify="space-between" align="center" py="sm" gap="xs">
-                          {/* Local */}
-                          <Flex direction="column" align="center" justify="center" w="35%" gap="xs">
-                            {partido.local?.codigo_iso ? (
-                              <img
-                                src={getFlagUrl(partido.local.codigo_iso)}
-                                alt={partido.local.nombre}
-                                style={{
-                                  width: "48px",
-                                  height: "36px",
-                                  objectFit: "cover",
-                                  borderRadius: "6px",
-                                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                                  border: "1px solid rgba(0,0,0,0.1)",
-                                }}
-                              />
-                            ) : (
-                              <Text size="3xl" style={{ lineHeight: 1 }}>
-                                {partido.local?.bandera_icono || "🏳️"}
-                              </Text>
-                            )}
-                            <Text fw={750} ta="center" size="sm" style={{ minHeight: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              {partido.local?.nombre || "Equipo Local"}
-                            </Text>
-                            <Badge color="gray" variant="dot">
-                              {partido.local?.codigo_fifa}
-                            </Badge>
-                          </Flex>
-
-                          {/* Inputs Quiniela */}
-                          <Flex direction="column" align="center" gap="sm" w="30%">
-                            <Group gap={8} justify="center" align="center">
-                              <NumberInput
-                                placeholder="-"
-                                w={50}
-                                min={0}
-                                max={99}
-                                size="sm"
-                                hideControls
-                                value={currentPred.local}
-                                disabled={isLocked}
-                                onChange={(val) => handlePredictionChange(partido.id, "local", val)}
-                                styles={{ input: { textAlign: "center", fontWeight: "bold" } }}
-                              />
-                              <Text fw={800} c="dimmed">
-                                VS
-                              </Text>
-                              <NumberInput
-                                placeholder="-"
-                                w={50}
-                                min={0}
-                                max={99}
-                                size="sm"
-                                hideControls
-                                value={currentPred.visitante}
-                                disabled={isLocked}
-                                onChange={(val) => handlePredictionChange(partido.id, "visitante", val)}
-                                styles={{ input: { textAlign: "center", fontWeight: "bold" } }}
-                              />
-                            </Group>
-                            <Button
-                              variant="light"
-                              color={isLocked ? "gray" : "blue"}
-                              size="xs"
-                              leftSection={isLocked ? <Lock size={14} /> : isSaving ? <Loader size={14} color="blue" /> : <Save size={14} />}
-                              onClick={() => savePrediction(partido.id)}
-                              disabled={isLocked || isSaving}
-                              loading={isSaving}
-                            >
-                              {isLocked ? "Cerrado" : isSaving ? "Guardando..." : "Guardar"}
-                            </Button>
-                          </Flex>
-
-                          {/* Visitante */}
-                          <Flex direction="column" align="center" justify="center" w="35%" gap="xs">
-                            {partido.visitante?.codigo_iso ? (
-                              <img
-                                src={getFlagUrl(partido.visitante.codigo_iso)}
-                                alt={partido.visitante.nombre}
-                                style={{
-                                  width: "48px",
-                                  height: "36px",
-                                  objectFit: "cover",
-                                  borderRadius: "6px",
-                                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                                  border: "1px solid rgba(0,0,0,0.1)",
-                                }}
-                              />
-                            ) : (
-                              <Text size="3xl" style={{ lineHeight: 1 }}>
-                                {partido.visitante?.bandera_icono || "🏳️"}
-                              </Text>
-                            )}
-                            <Text fw={750} ta="center" size="sm" style={{ minHeight: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              {partido.visitante?.nombre || "Equipo Visitante"}
-                            </Text>
-                            <Badge color="gray" variant="dot">
-                              {partido.visitante?.codigo_fifa}
-                            </Badge>
-                          </Flex>
-                        </Flex>
-
-                        <Divider my="md" style={{ opacity: 0.6 }} />
-
-                        {/* Footer: Fecha y Estadio */}
-                        <Stack gap={6}>
-                          <Group gap={6}>
-                            <Clock size={14} className="text-dimmed" />
-                            <Text size="xs" c="dimmed" fw={600}>
-                              {formatMatchDate(partido.fecha_hora_utc)} (Hora Local)
-                            </Text>
-                          </Group>
-                          <Group gap={6} align="flex-start" wrap="nowrap">
-                            <MapPin size={14} className="text-dimmed" style={{ marginTop: "2px" }} />
-                            <Text size="xs" c="dimmed" fw={500} style={{ wordBreak: "break-word" }}>
-                              {partido.estadio_completo || "Estadio por confirmar"}
-                            </Text>
-                          </Group>
-                        </Stack>
-                      </Card>
-                    </Grid.Col>
-                  );
-                })}
-              </Grid>
-            )}
+            <Grid gap="lg">
+              {loading ? (
+                skeletonCards
+              ) : error ? (
+                <Grid.Col span={12}>
+                  <Alert color="danger" title="Error de conexión">
+                    Hubo un problema al cargar los partidos de la base de datos.
+                  </Alert>
+                </Grid.Col>
+              ) : partidos.length === 0 ? (
+                <Grid.Col span={12}>
+                  <Alert color="blue" title="Sin partidos">
+                    No hay partidos disponibles en este momento.
+                  </Alert>
+                </Grid.Col>
+              ) : (
+                matchesCards
+              )}
+            </Grid>
           </Flex>
         </Flex>
       </ContainerSection>
@@ -610,4 +415,3 @@ const Predictions = () => {
 };
 
 export default Predictions;
-

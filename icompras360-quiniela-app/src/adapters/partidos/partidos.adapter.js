@@ -30,5 +30,9 @@ export const partidosAdapter = (response) => {
       bandera_icono: partido.visitante?.bandera_icono,
       placeholder: partido.visitante?.placeholder,
     },
+    pronostico: {
+      golesLocal: partido.mi_pronostico?.goles_local ?? "",
+      golesVisitante: partido.mi_pronostico?.goles_visitante ?? "",
+    },
   }));
 };
