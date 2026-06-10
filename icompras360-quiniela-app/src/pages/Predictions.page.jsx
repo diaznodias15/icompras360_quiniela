@@ -14,11 +14,7 @@ import {
   Stack,
   RingProgress,
   Badge,
-  Skeleton,
-  NumberInput,
-  Button,
   Divider,
-  Loader,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 // COMPONENTS
@@ -28,32 +24,16 @@ import {
   MatchesCardSkeleton,
 } from "@components/matches/MatchesCard.component.jsx";
 // SERVICES
-import {
-  getPartidosLista,
-  guardarPronostico,
-} from "@services/partidos/partidos.services";
+import { getPartidosLista } from "@services/partidos/partidos.services";
 // STORE
 import { useUserStore } from "@store/user.store";
 // LUCIDE
-import {
-  Calendar,
-  Trophy,
-  Info,
-  Target,
-  CheckCircle2,
-  Sparkles,
-  MapPin,
-  Clock,
-  Save,
-  Lock,
-} from "lucide-react";
+import { Calendar, Trophy, Info, Target, CheckCircle2 } from "lucide-react";
 
 const Predictions = () => {
   const [partidos, setPartidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [predictions, setPredictions] = useState({});
-  const [savingPredictions, setSavingPredictions] = useState({});
 
   // Obtener el token de la sesión activa
   const token = useUserStore((state) => state.token);
@@ -90,56 +70,6 @@ const Predictions = () => {
       active = false;
     };
   }, [token]);
-
-  const handlePredictionChange = (matchId, team, val) => {
-    setPredictions((prev) => ({
-      ...prev,
-      [matchId]: {
-        ...prev[matchId],
-        [team]: val,
-      },
-    }));
-  };
-
-  const savePrediction = async (matchId) => {
-    const pred = predictions[matchId];
-    if (pred?.local === undefined || pred?.visitante === undefined) {
-      notifications.show({
-        color: "yellow",
-        title: "Atención",
-        message:
-          "Por favor, ingresa los goles para ambos equipos antes de guardar.",
-      });
-      return;
-    }
-
-    setSavingPredictions((prev) => ({ ...prev, [matchId]: true }));
-    try {
-      await guardarPronostico(
-        {
-          partido_id: matchId,
-          goles_local: pred.local,
-          goles_visitante: pred.visitante,
-        },
-        { authToken: token },
-      );
-      notifications.show({
-        color: "success",
-        title: "Pronóstico guardado",
-        message: "Tu predicción fue registrada correctamente.",
-      });
-    } catch (err) {
-      notifications.show({
-        color: "danger",
-        title: "Error al guardar",
-        message:
-          err?.data?.message ||
-          "No se pudo guardar el pronóstico. Intenta de nuevo.",
-      });
-    } finally {
-      setSavingPredictions((prev) => ({ ...prev, [matchId]: false }));
-    }
-  };
 
   const skeletonCards = useMemo(() => {
     return Array.from({ length: 6 }).map((_, i) => (
