@@ -15,6 +15,8 @@ import {
   RingProgress,
   Badge,
   Divider,
+  Skeleton,
+  Chip,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 // COMPONENTS
@@ -25,6 +27,7 @@ import {
 } from "@components/matches/MatchesCard.component.jsx";
 // SERVICES
 import { getPartidosLista } from "@services/partidos/partidos.services";
+import { getEstadisticasUsuario } from "@services/users/estadisticas.services";
 // STORE
 import { useUserStore } from "@store/user.store";
 // LUCIDE
@@ -32,20 +35,40 @@ import { Calendar, Trophy, Info, Target, CheckCircle2 } from "lucide-react";
 
 const Predictions = () => {
   const [partidos, setPartidos] = useState([]);
+  const [estadisticas, setEstadisticas] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [faseSeleccionada, setFaseSeleccionada] = useState("all");
 
-  // Obtener el token de la sesión activa
   const token = useUserStore((state) => state.token);
+
+  const fases = useMemo(() => {
+    const fasesMap = new Map();
+    partidos.forEach((partido) => {
+      if (partido.fase?.id != null && partido.fase?.nombre) {
+        fasesMap.set(String(partido.fase.id), partido.fase.nombre);
+      }
+    });
+    return Array.from(fasesMap, ([id, nombre]) => ({ id, nombre }));
+  }, [partidos]);
+
+  const partidosFiltrados = useMemo(() => {
+    if (faseSeleccionada === "all") return partidos;
+    return partidos.filter((partido) => String(partido.fase.id) === faseSeleccionada);
+  }, [partidos, faseSeleccionada]);
 
   useEffect(() => {
     let active = true;
-    const fetchPartidos = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getPartidosLista({ authToken: token });
+        const [partidosData, estadisticasData] = await Promise.all([
+          getPartidosLista({ authToken: token }),
+          getEstadisticasUsuario({ authToken: token }),
+        ]);
         if (active) {
-          setPartidos(data);
+          setPartidos(partidosData);
+          setEstadisticas(estadisticasData);
           setError(false);
         }
       } catch (err) {
@@ -54,8 +77,7 @@ const Predictions = () => {
           notifications.show({
             color: "danger",
             title: "Error",
-            message:
-              "No se pudieron cargar los partidos. Por favor, intente de nuevo.",
+            message: "No se pudieron cargar los datos. Por favor, intente de nuevo.",
           });
         }
       } finally {
@@ -65,7 +87,7 @@ const Predictions = () => {
       }
     };
 
-    fetchPartidos();
+    fetchData();
     return () => {
       active = false;
     };
@@ -77,7 +99,7 @@ const Predictions = () => {
     ));
   }, []);
 
-  const matchesCards = partidos.map((partido) => {
+  const matchesCards = partidosFiltrados.map((partido) => {
     return <MatchesCard key={partido.id} data={partido} />;
   });
 
@@ -173,9 +195,13 @@ const Predictions = () => {
                       <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                         Puntos Acumulados
                       </Text>
-                      <Text size="3xl" fw={900} c="primary">
-                        10 Pts
-                      </Text>
+                      {loading || !estadisticas ? (
+                        <Skeleton height={36} width={60} />
+                      ) : (
+                        <Text size="3xl" fw={900} c="primary">
+                          {estadisticas.puntos_acumulados} Pts
+                        </Text>
+                      )}
                     </Stack>
                     <ThemeIcon color="primary" size="lg">
                       <Trophy size={20} />
@@ -204,9 +230,13 @@ const Predictions = () => {
                       <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                         Aciertos Exactos
                       </Text>
-                      <Text size="3xl" fw={900} c="success">
-                        2
-                      </Text>
+                      {loading || !estadisticas ? (
+                        <Skeleton height={36} width={40} />
+                      ) : (
+                        <Text size="3xl" fw={900} c="success">
+                          {estadisticas.aciertos_exactos}
+                        </Text>
+                      )}
                     </Stack>
                     <ThemeIcon color="success" size="lg">
                       <Target size={20} />
@@ -235,9 +265,13 @@ const Predictions = () => {
                       <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                         Resultados Simples
                       </Text>
-                      <Text size="3xl" fw={900} c="blue">
-                        4
-                      </Text>
+                      {loading || !estadisticas ? (
+                        <Skeleton height={36} width={40} />
+                      ) : (
+                        <Text size="3xl" fw={900} c="blue">
+                          {estadisticas.aciertos_simples}
+                        </Text>
+                      )}
                     </Stack>
                     <ThemeIcon color="blue" size="lg">
                       <CheckCircle2 size={20} />
@@ -263,29 +297,37 @@ const Predictions = () => {
                       <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                         Predicciones
                       </Text>
-                      <Text size="lg" fw={800}>
-                        6 / 10
-                      </Text>
+                      {loading || !estadisticas ? (
+                        <Skeleton height={24} width={80} />
+                      ) : (
+                        <Text size="lg" fw={800}>
+                          {estadisticas.porcentaje_prediccion}%
+                        </Text>
+                      )}
                       <Text size="xs" c="dimmed">
                         Efectividad de acierto
                       </Text>
                     </Stack>
-                    <RingProgress
-                      size={70}
-                      roundCaps
-                      thickness={6}
-                      sections={[
-                        {
-                          value: 60,
-                          color: "teal",
-                        },
-                      ]}
-                      label={
-                        <Text size="xs" fw={700} ta="center">
-                          60%
-                        </Text>
-                      }
-                    />
+                    {loading || !estadisticas ? (
+                      <Skeleton circle height={70} />
+                    ) : (
+                      <RingProgress
+                        size={70}
+                        roundCaps
+                        thickness={6}
+                        sections={[
+                          {
+                            value: estadisticas.porcentaje_prediccion,
+                            color: "teal",
+                          },
+                        ]}
+                        label={
+                          <Text size="xs" fw={700} ta="center">
+                            {estadisticas.porcentaje_prediccion}%
+                          </Text>
+                        }
+                      />
+                    )}
                   </Group>
                 </Card>
               </Grid.Col>
@@ -328,9 +370,24 @@ const Predictions = () => {
                 </Text>
               </Stack>
               <Badge color="blue" variant="filled" size="lg">
-                {partidos.length} Partidos
+                {partidosFiltrados.length} Partidos
               </Badge>
             </Group>
+
+            {fases.length > 0 && (
+              <Chip.Group multiple={false} value={faseSeleccionada} onChange={setFaseSeleccionada}>
+                <Flex gap="xs" wrap="wrap">
+                  <Chip color="blue" variant="filled" value="all">
+                    Todos
+                  </Chip>
+                  {fases.map((fase) => (
+                    <Chip key={fase.id} color="blue" variant="filled" value={fase.id}>
+                      {fase.nombre}
+                    </Chip>
+                  ))}
+                </Flex>
+              </Chip.Group>
+            )}
 
             <Divider my="xs" />
 
@@ -343,10 +400,10 @@ const Predictions = () => {
                     Hubo un problema al cargar los partidos de la base de datos.
                   </Alert>
                 </Grid.Col>
-              ) : partidos.length === 0 ? (
+              ) : partidosFiltrados.length === 0 ? (
                 <Grid.Col span={12}>
                   <Alert color="blue" title="Sin partidos">
-                    No hay partidos disponibles en este momento.
+                    No hay partidos disponibles en esta fase.
                   </Alert>
                 </Grid.Col>
               ) : (
