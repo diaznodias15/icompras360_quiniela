@@ -8,6 +8,7 @@ import {
   Flex,
   Grid,
   Group,
+  Image,
   NumberInput,
   Skeleton,
   Stack,
@@ -411,30 +412,41 @@ export const MatchesCard = ({ data = {} }) => {
 
         <Divider my="md" style={{ opacity: 0.6 }} />
 
-        {/* Footer: Fecha y Estadio */}
-        <Stack gap={6}>
-          <Group gap={6}>
-            <Clock size={14} className="text-dimmed" />
-            <Text size="xs" c="dimmed" fw={600}>
-              {formatMatchDate(data.fecha_hora_utc)} (Hora Local)
-            </Text>
-          </Group>
-          <Group gap={6} align="flex-start" wrap="nowrap">
-            <MapPin
-              size={14}
-              className="text-dimmed"
-              style={{ marginTop: "2px" }}
+        {/* Footer: Fecha, Estadio y País */}
+        <Flex justify="space-between" align="flex-start">
+          <Stack gap={6}>
+            <Group gap={6}>
+              <Clock size={14} className="text-dimmed" />
+              <Text size="xs" c="dimmed" fw={600}>
+                {formatMatchDate(data.fecha_hora_utc)} (Hora Local)
+              </Text>
+            </Group>
+            <Group gap={6} align="flex-start" wrap="nowrap">
+              <MapPin
+                size={14}
+                className="text-dimmed"
+                style={{ marginTop: "2px" }}
+              />
+              <Text
+                size="xs"
+                c="dimmed"
+                fw={500}
+                style={{ wordBreak: "break-word" }}
+              >
+                {data.estadio_completo || "Estadio por confirmar"}
+              </Text>
+            </Group>
+          </Stack>
+          {data.pais && (
+            <Image
+              alt={data.pais}
+              src={`${import.meta.env.BASE_URL}img/${data.pais}.webp`}
+              h={70}
+              w={70}
+              fit="contain"
             />
-            <Text
-              size="xs"
-              c="dimmed"
-              fw={500}
-              style={{ wordBreak: "break-word" }}
-            >
-              {data.estadio_completo || "Estadio por confirmar"}
-            </Text>
-          </Group>
-        </Stack>
+          )}
+        </Flex>
       </Card>
     </Grid.Col>
   );

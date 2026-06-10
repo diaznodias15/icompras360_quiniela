@@ -36,5 +36,6 @@ export const partidosAdapter = (response) => {
       golesLocal: partido.mi_pronostico?.goles_local ?? "",
       golesVisitante: partido.mi_pronostico?.goles_visitante ?? "",
     },
+    pais: partido.pais,
   }));
 };
