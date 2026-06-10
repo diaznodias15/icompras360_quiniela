@@ -159,6 +159,7 @@ export const MatchesCard = ({ data = {} }) => {
     <Grid.Col span={{ base: 12, md: 6 }}>
       <Card
         withBorder
+        h={"100%"}
         p="lg"
         radius="md"
         shadow="sm"
