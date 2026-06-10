@@ -1,8 +1,6 @@
 // REACT
 import { lazy, Suspense, useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router";
-// MANTINE
-import { useMantineColorScheme } from "@mantine/core";
 // LAYOUT
 import Layout from "@layouts/Layout";
 // COMPONENTS

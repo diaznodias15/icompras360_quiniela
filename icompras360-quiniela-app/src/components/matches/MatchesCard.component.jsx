@@ -15,6 +15,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
+import { useDebouncedCallback } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 // LUCIDE
 import { Clock, Lock, MapPin, Save } from "lucide-react";
@@ -68,16 +69,24 @@ export const MatchesCard = ({ data = {} }) => {
           return { ...prev, golesVisitante: val };
         }
       });
+      handleSavePrediction();
     },
     [data.id],
   );
 
-  const handleSavePrediction = async () => {
+  const handleSavePrediction = useDebouncedCallback(async () => {
     if (isLocked) return;
     if (pronostico.golesLocal == "" || pronostico.golesVisitante == "") {
       return;
     }
-    setIsSaving(true);
+    const id = notifications.show({
+      loading: true,
+      title: "Guardando...",
+      message: "Estamos guardando tu pronóstico",
+      autoClose: false,
+      allowClose: false,
+    });
+
     try {
       await guardarPronostico(
         {
@@ -87,24 +96,26 @@ export const MatchesCard = ({ data = {} }) => {
         },
         { authToken: token },
       );
-      notifications.show({
+      notifications.update({
+        id,
         color: "success",
         title: "Pronóstico guardado",
         message: "Tu predicción fue registrada correctamente.",
+        loading: false,
       });
     } catch (err) {
       console.log(err);
-      notifications.show({
+      notifications.update({
+        id,
         color: "danger",
         title: "Error al guardar",
         message:
           err?.data?.message ||
           "No se pudo guardar el pronóstico. Intenta de nuevo.",
+        loading: false,
       });
-    } finally {
-      setIsSaving(false);
     }
-  };
+  }, 1000);
 
   return (
     <Grid.Col span={{ base: 12, md: 6 }}>
@@ -162,7 +173,7 @@ export const MatchesCard = ({ data = {} }) => {
             direction="column"
             align="center"
             justify="center"
-            w="35%"
+            w="20%"
             gap="xs"
           >
             {data.local?.codigo_iso ? (
@@ -202,14 +213,14 @@ export const MatchesCard = ({ data = {} }) => {
           </Flex>
 
           {/* Inputs Quiniela */}
-          <Flex direction="column" align="center" gap="sm" w="30%">
+          <Flex direction="column" align="center" gap="sm" w="50%">
             <Group gap={8} justify="center" align="center">
               <NumberInput
                 placeholder="-"
                 w={50}
                 min={0}
                 max={99}
-                size="sm"
+                size="md"
                 hideControls
                 value={pronostico.golesLocal}
                 disabled={isLocked}
@@ -229,7 +240,7 @@ export const MatchesCard = ({ data = {} }) => {
                 w={50}
                 min={0}
                 max={99}
-                size="sm"
+                size="md"
                 hideControls
                 value={pronostico.golesVisitante}
                 disabled={isLocked}
@@ -242,25 +253,6 @@ export const MatchesCard = ({ data = {} }) => {
                 }}
               />
             </Group>
-            <Button
-              variant="light"
-              color={isLocked ? "gray" : "blue"}
-              size="xs"
-              leftSection={
-                isLocked ? (
-                  <Lock size={14} />
-                ) : isSaving ? (
-                  <Loader size={14} color="blue" />
-                ) : (
-                  <Save size={14} />
-                )
-              }
-              onClick={() => handleSavePrediction(data.id)}
-              disabled={isLocked || isSaving}
-              loading={isSaving}
-            >
-              {isLocked ? "Cerrado" : isSaving ? "Guardando..." : "Guardar"}
-            </Button>
           </Flex>
 
           {/* Visitante */}
@@ -268,7 +260,7 @@ export const MatchesCard = ({ data = {} }) => {
             direction="column"
             align="center"
             justify="center"
-            w="35%"
+            w="20%"
             gap="xs"
           >
             {data.visitante?.codigo_iso ? (

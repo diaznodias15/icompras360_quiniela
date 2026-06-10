@@ -76,8 +76,17 @@ const Login = () => {
     },
 
     validate: {
-      email: (value) => isEmailValid(value),
-      password: (value) => isPasswordValid(value, false),
+      email: (value) => {
+        if (!value || !value.trim())
+          return "El correo electrónico es requerido";
+        return null;
+      },
+      password: (value) => {
+        if (!value || !value.trim()) return "La contraseña es requerida";
+        if (value.trim().length < 4)
+          return "La contraseña debe tener al menos 4 caracteres";
+        return null;
+      },
     },
   });
 
@@ -161,26 +170,6 @@ const Login = () => {
               />
             </Flex>
             <Text size="4xl">Bienvenido</Text>
-            <Flex
-              align={"center"}
-              gap={10}
-              justify={"center"}
-              mt={10}
-              w={"100%"}
-            >
-              <Text size="md">¿No tienes cuenta?</Text>
-              <Anchor
-                c={"for-background"}
-                className={classes.navbarItem}
-                fw={600}
-                component={Link}
-                replace={true}
-                to={PublicRoutes.SIGNUP.route}
-                underline="never"
-              >
-                ¡Registrate!
-              </Anchor>
-            </Flex>
           </Flex>
           <form
             className="w-full"

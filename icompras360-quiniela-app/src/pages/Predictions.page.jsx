@@ -10,6 +10,7 @@ import {
   Grid,
   Card,
   Group,
+  Image,
   Stack,
   RingProgress,
   Badge,
@@ -155,39 +156,49 @@ const Predictions = () => {
       <ContainerSection mb={20} px={{ base: 10, md: 20 }} pt={20}>
         <Flex align={"center"} direction={"column"} w={"100%"} gap={"lg"}>
           {/* BANNER PRINCIPAL */}
-          <Alert color={"yellow"} w={"100%"}>
+          <Alert color={"green"} w={"100%"}>
             <Flex
               align={"center"}
               gap={15}
-              justify={"center"}
+              justify={"space-between"}
               direction={{ base: "column", sm: "row" }}
               py={10}
             >
-              <ThemeIcon color="yellow" variant={"transparent"} size={60}>
-                <Trophy size={60} />
-              </ThemeIcon>
-              <Flex
-                direction={"column"}
-                align={{ base: "center", sm: "flex-start" }}
-              >
-                <Text
-                  c={"primary"}
-                  fw={850}
-                  size={"2xl"}
-                  style={{ letterSpacing: "1px" }}
-                  ta={"center"}
+              <Flex>
+                <ThemeIcon color="yellow" variant={"transparent"} size={60}>
+                  <Trophy size={60} />
+                </ThemeIcon>
+                <Flex
+                  direction={"column"}
+                  align={{ base: "center", sm: "flex-start" }}
                 >
-                  QUINIELA ICOMPRAS360 2026
-                </Text>
-                <Flex align={"center"} gap={5}>
-                  <ThemeIcon color="gray" variant={"transparent"} size={"md"}>
-                    <Calendar size={18} />
-                  </ThemeIcon>
-                  <Text c={"dimmed"} size="sm" fw={500}>
-                    Del 11 de Junio al 19 de Julio, 2026
+                  <Text
+                    c={"primary"}
+                    fw={850}
+                    size={"2xl"}
+                    style={{ letterSpacing: "1px" }}
+                    ta={"center"}
+                  >
+                    QUINIELA ICOMPRAS360 2026
                   </Text>
+                  <Flex align={"center"} gap={5}>
+                    <ThemeIcon color="gray" variant={"transparent"} size={"md"}>
+                      <Calendar size={18} />
+                    </ThemeIcon>
+                    <Text c={"dimmed"} size="sm" fw={500}>
+                      Del 11 de Junio al 19 de Julio, 2026
+                    </Text>
+                  </Flex>
                 </Flex>
               </Flex>
+              <Image
+                alt={`Logo de balon del mundial`}
+                darkHidden
+                fit={"contain"}
+                h={100}
+                src={`${import.meta.env.BASE_URL}img/balon-mundial.webp`}
+                w={150}
+              />
             </Flex>
           </Alert>
 
@@ -206,7 +217,7 @@ const Predictions = () => {
               c="primary"
               style={{ display: "flex", alignItems: "center", gap: "8px" }}
             >
-              <Sparkles size={20} /> Mi Rendimiento en la Quiniela
+              Mis puntuaciones
             </Text>
 
             <Grid gutter={{ base: "md", md: "xl" }} mb="lg">
