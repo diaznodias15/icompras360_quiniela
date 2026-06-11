@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 // MANTINE
 import {
+  Alert,
   Anchor,
   Button,
   Flex,
@@ -14,6 +15,7 @@ import {
   TextInput,
   useMatches,
 } from "@mantine/core";
+import { Info } from "lucide-react";
 import { useDocumentTitle, useDisclosure, useMediaQuery } from "@mantine/hooks";
 // COMPONENTS
 import { ServerError } from "@components/common/ServerError/ServerError.component";
@@ -138,9 +140,10 @@ const Login = () => {
           bg={"section"}
           c={"for-section"}
           className={"overflow-hidden"}
-          maw={600}
-          px={10}
-          py={20}
+          maw={520}
+          px={30}
+          py={30}
+          radius="xl"
           shadow="xl"
           w={"100%"}
         >
@@ -170,6 +173,16 @@ const Login = () => {
               />
             </Flex>
             <Text size="4xl">Bienvenido</Text>
+            <Alert
+              color="blue"
+              icon={<Info size={18} />}
+              mt="md"
+              radius="md"
+              title="Acceso unificado"
+              variant="light"
+            >
+              Puedes iniciar sesión utilizando las mismas credenciales de tu cuenta Icompras360.
+            </Alert>
           </Flex>
           <form
             className="w-full"
@@ -217,15 +230,15 @@ const Login = () => {
                   size="md"
                   {...form.getInputProps("password")}
                 />
-                <Flex justify={"flex-end"} w={"100%"}>
+                <Flex justify={"center"} mt="lg" w={"100%"}>
                   <Button
                     loading={isLoading}
                     fullWidth={isMobile}
                     leftSection={<LogIn />}
-                    size="md"
+                    size="lg"
                     type="submit"
-                  >
-                    Entrar
+                    variant="gradient">
+                    Iniciar Sesión
                   </Button>
                 </Flex>
               </Flex>
