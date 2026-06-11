@@ -46,7 +46,7 @@ import { getFlagUrl } from "@utilities/matchesUtilities.utility.jsx";
 
 const ESTADOS_DISPONIBLES = [
   { value: "Programado", label: "Programado", color: "gray" },
-  { value: "En progreso", label: "En progreso", color: "yellow" },
+  { value: "En Progreso", label: "En Progreso", color: "yellow" },
   { value: "Finalizado", label: "Finalizado", color: "green" },
 ];
 
@@ -54,7 +54,7 @@ const getEstadoColor = (estado) => {
   switch (estado) {
     case "Programado":
       return "gray";
-    case "En progreso":
+    case "En Progreso":
       return "yellow";
     case "Finalizado":
       return "green";
@@ -67,7 +67,7 @@ const getEstadoIcon = (estado) => {
   switch (estado) {
     case "Programado":
       return <Clock size={14} />;
-    case "En progreso":
+    case "En Progreso":
       return <PlayCircle size={14} />;
     case "Finalizado":
       return <CheckCircle size={14} />;

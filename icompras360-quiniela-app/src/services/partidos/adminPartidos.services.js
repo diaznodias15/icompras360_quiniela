@@ -55,7 +55,7 @@ export const getAdminPartidosLista = async (params = {}) => {
  * @param {number} data.partido_id - The match ID.
  * @param {number} data.goles_local - Goals for the home team.
  * @param {number} data.goles_visitante - Goals for the away team.
- * @param {string} data.estado - Status of the match (Programado, En progreso, Finalizado).
+ * @param {string} data.estado - Status of the match (Programado, En Progreso, Finalizado).
  * @param {Object} params - Extra config parameters.
  * @param {string} [params.authToken] - Optional auth token.
  * @param {AbortController} [params.controller] - Optional AbortController.
