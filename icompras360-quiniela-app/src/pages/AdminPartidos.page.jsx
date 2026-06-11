@@ -541,7 +541,7 @@ const AdminPartidos = () => {
               </Chip.Group>
             )}
 
-            <Grid gap="lg">
+            <Grid gap="lg" mt={10}>
               {loading ? (
                 skeletonCards
               ) : error ? (
