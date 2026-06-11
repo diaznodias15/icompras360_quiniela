@@ -1,5 +1,5 @@
 // REACT
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Table,
   Badge,
@@ -13,17 +13,33 @@ import {
   Avatar,
   ThemeIcon,
   Progress,
+  Button,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component.jsx";
+import { AdaptiveModal } from "@components/common/AdaptiveModal/AdaptiveModal.component.jsx";
+import {
+  UserPredictionsCardSkeleton,
+  UserPredictionsModalContent,
+} from "@components/common/UserPredictionsModal/UserPredictionsModal.component";
 import { getRanking } from "@services/users/ranking.services";
+import { getUserPredictions } from "@services/users/userPredictions.services";
 import { useUserStore } from "@store/user.store";
-import { Trophy, Medal, Award, Star, TrendingUp } from "lucide-react";
+import { Trophy, Medal, Award, TrendingUp, Eye } from "lucide-react";
 
 const Ranking = () => {
   const [rankingData, setRankingData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userPredictions, setUserPredictions] = useState([]);
+  const [loadingPredictions, setLoadingPredictions] = useState(false);
+  const [errorPredictions, setErrorPredictions] = useState(false);
+  const [faseSeleccionada, setFaseSeleccionada] = useState("all");
 
   const token = useUserStore((state) => state.token);
 
@@ -64,6 +80,54 @@ const Ranking = () => {
     };
   }, [token]);
 
+  const handleViewPredictions = async (user) => {
+    setSelectedUser(user);
+    setFaseSeleccionada("all");
+    openModal();
+
+    let active = true;
+    setLoadingPredictions(true);
+    setErrorPredictions(false);
+
+    try {
+      const data = await getUserPredictions({
+        userId: user.id,
+        authToken: token,
+      });
+      if (active) {
+        setUserPredictions(data);
+        setErrorPredictions(false);
+      }
+    } catch (err) {
+      if (active) {
+        setErrorPredictions(true);
+        notifications.show({
+          color: "danger",
+          title: "Error",
+          message: `No se pudieron cargar las predicciones de ${user.name}.`,
+        });
+      }
+    } finally {
+      if (active) {
+        setLoadingPredictions(false);
+      }
+    }
+
+    return () => {
+      active = false;
+    };
+  };
+
+  const fases = useMemo(() => {
+    const fasesMap = new Map();
+    userPredictions.forEach((partido) => {
+      if (partido.fase?.id != null && partido.fase?.nombre) {
+        fasesMap.set(String(partido.fase.id), partido.fase.nombre);
+      }
+    });
+    return Array.from(fasesMap, ([id, nombre]) => ({ id, nombre }));
+  }, [userPredictions]);
+
   const getPositionIcon = (position) => {
     if (position === 1) return <Trophy size={20} color="#FFD700" />;
     if (position === 2) return <Medal size={20} color="#C0C0C0" />;
@@ -94,6 +158,7 @@ const Ranking = () => {
       <Table.Td><Skeleton height={20} width={40} /></Table.Td>
       <Table.Td><Skeleton height={20} width={40} /></Table.Td>
       <Table.Td><Skeleton height={20} width={50} /></Table.Td>
+      <Table.Td><Skeleton height={30} width={80} /></Table.Td>
     </Table.Tr>
   ));
 
@@ -126,6 +191,7 @@ const Ranking = () => {
                     <Table.Th style={{ textAlign: "center" }}>Exactos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Simples</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Efectividad</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -133,7 +199,7 @@ const Ranking = () => {
                     skeletonRows
                   ) : error ? (
                     <Table.Tr>
-                      <Table.Td colSpan={6}>
+                      <Table.Td colSpan={7}>
                         <Text c="danger" ta="center" fw={600}>
                           Error al cargar el ranking
                         </Text>
@@ -141,7 +207,7 @@ const Ranking = () => {
                     </Table.Tr>
                   ) : rankingData.length === 0 ? (
                     <Table.Tr>
-                      <Table.Td colSpan={6}>
+                      <Table.Td colSpan={7}>
                         <Text c="dimmed" ta="center">
                           No hay participantes en el ranking
                         </Text>
@@ -204,6 +270,17 @@ const Ranking = () => {
                             />
                           </Stack>
                         </Table.Td>
+                        <Table.Td style={{ textAlign: "center" }}>
+                          <Button
+                            variant="subtle"
+                            color="blue"
+                            size="sm"
+                            leftSection={<Eye size={16} />}
+                            onClick={() => handleViewPredictions(user)}
+                          >
+                            Ver
+                          </Button>
+                        </Table.Td>
                       </Table.Tr>
                     ))
                   )}
@@ -213,6 +290,31 @@ const Ranking = () => {
           </Card>
         </Stack>
       </ContainerSection>
+
+      <AdaptiveModal
+        opened={modalOpened}
+        onClose={closeModal}
+        size="xl"
+        title={
+          <Flex align={"center"} gap={"xs"}>
+            <Eye size={24} color="#E31B23" />
+            <Text fw={700} size="lg">
+              Pronósticos de {selectedUser?.name}
+            </Text>
+          </Flex>
+        }
+        zIndex={1100}
+      >
+        <UserPredictionsModalContent
+          userData={selectedUser}
+          predictions={userPredictions}
+          loading={loadingPredictions}
+          error={errorPredictions}
+          faseSeleccionada={faseSeleccionada}
+          onFaseChange={setFaseSeleccionada}
+          fases={fases}
+        />
+      </AdaptiveModal>
     </Flex>
   );
 };

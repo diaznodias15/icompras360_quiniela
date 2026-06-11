@@ -11,12 +11,15 @@ const ProtectedRoute = ({
 }) => {
   const userToken = useUserStore((state) => state.token);
   const is_cli = useUserStore((state) => state.is_cli);
+  const logout = useUserStore((state) => state.reset);
 
   if (!userToken) {
+    logout();
     return <Navigate replace to={redirectURL} />;
   }
 
   if (is_cli === null) {
+    logout();
     return <Navigate replace to={redirectURL} />;
   }
 
