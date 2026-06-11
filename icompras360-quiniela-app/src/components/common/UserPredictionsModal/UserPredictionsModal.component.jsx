@@ -15,7 +15,7 @@ import {
   Chip,
 } from "@mantine/core";
 // LUCIDE
-import { Clock, MapPin, Eye, Lock } from "lucide-react";
+import { Clock, MapPin, Eye, Lock, AlertCircle } from "lucide-react";
 // UTILITIES
 import {
   formatMatchDate,
@@ -42,6 +42,8 @@ export const UserPredictionsCardSkeleton = () => {
 
 export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
   const isLocked = isMatchLocked(data.fecha_hora_utc);
+  const estado = data.estado || "Programado";
+  const isFinalizado = estado === "Finalizado";
 
   const pronostico = {
     golesLocal: data.pronostico?.golesLocal ?? "",
@@ -103,6 +105,19 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
             {data.fase?.nombre || "Fase de Grupos"}
           </Badge>
           <Group gap={6}>
+            <Badge
+              color={
+                estado === "Finalizado"
+                  ? "green"
+                  : estado === "En progreso"
+                    ? "yellow"
+                    : "gray"
+              }
+              variant={estado === "Finalizado" ? "filled" : "light"}
+              size="sm"
+            >
+              {estado}
+            </Badge>
             {isLocked && (
               <Badge
                 color="red"
@@ -248,8 +263,19 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
             <Divider
               my="sm"
               label={
-                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                  Resultado oficial
+                <Text
+                  size="xs"
+                  c={isFinalizado ? "green" : "yellow"}
+                  fw={600}
+                  tt="uppercase"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  {!isFinalizado && <AlertCircle size={12} />}
+                  {isFinalizado ? "Resultado oficial" : "Resultado temporal"}
                 </Text>
               }
               labelPosition="center"
@@ -259,7 +285,7 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
               <Text
                 fw={900}
                 size="2xl"
-                c="primary"
+                c={isFinalizado ? "primary" : "yellow"}
                 style={{
                   minWidth: "36px",
                   textAlign: "center",
@@ -274,7 +300,7 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
               <Text
                 fw={900}
                 size="2xl"
-                c="primary"
+                c={isFinalizado ? "primary" : "yellow"}
                 style={{
                   minWidth: "36px",
                   textAlign: "center",
@@ -284,7 +310,7 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
                 {data.goles_visitante}
               </Text>
 
-              {puntos != null && puntos > 0 && (
+              {isFinalizado && puntos != null && puntos > 0 && (
                 <Badge
                   color={puntos === 3 ? "success" : "blue"}
                   variant="filled"
@@ -298,7 +324,7 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
                   +{puntos}
                 </Badge>
               )}
-              {puntos === 0 && (
+              {isFinalizado && puntos === 0 && (
                 <Badge
                   color="red"
                   variant="light"

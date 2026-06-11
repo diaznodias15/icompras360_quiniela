@@ -18,7 +18,7 @@ import {
 import { useDebouncedCallback } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 // LUCIDE
-import { Clock, Lock, MapPin, Save } from "lucide-react";
+import { Clock, Lock, MapPin, Save, AlertCircle } from "lucide-react";
 // SERVICES
 import { guardarPronostico } from "@services/partidos/partidos.services";
 // STORE
@@ -50,6 +50,8 @@ export const MatchesCardSkeleton = () => {
 export const MatchesCard = ({ data = {} }) => {
   const isLocked = isMatchLocked(data.fecha_hora_utc);
   const token = useUserStore((state) => state.token);
+  const estado = data.estado || "Programado";
+  const isFinalizado = estado === "Finalizado";
 
   // STATES
   const [pronostico, setPronostico] = useState({
@@ -192,6 +194,19 @@ export const MatchesCard = ({ data = {} }) => {
             {data.fase?.nombre || "Fase de Grupos"}
           </Badge>
           <Group gap={6}>
+            <Badge
+              color={
+                estado === "Finalizado"
+                  ? "green"
+                  : estado === "En progreso"
+                    ? "yellow"
+                    : "gray"
+              }
+              variant={estado === "Finalizado" ? "filled" : "light"}
+              size="sm"
+            >
+              {estado}
+            </Badge>
             {isLocked && (
               <Badge
                 color="red"
@@ -357,8 +372,19 @@ export const MatchesCard = ({ data = {} }) => {
             <Divider
               my="sm"
               label={
-                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                  Resultado oficial
+                <Text
+                  size="xs"
+                  c={isFinalizado ? "green" : "yellow"}
+                  fw={600}
+                  tt="uppercase"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                >
+                  {!isFinalizado && <AlertCircle size={12} />}
+                  {isFinalizado ? "Resultado oficial" : "Resultado temporal"}
                 </Text>
               }
               labelPosition="center"
@@ -368,7 +394,7 @@ export const MatchesCard = ({ data = {} }) => {
               <Text
                 fw={900}
                 size="2xl"
-                c="primary"
+                c={isFinalizado ? "primary" : "yellow"}
                 style={{
                   minWidth: "36px",
                   textAlign: "center",
@@ -383,7 +409,7 @@ export const MatchesCard = ({ data = {} }) => {
               <Text
                 fw={900}
                 size="2xl"
-                c="primary"
+                c={isFinalizado ? "primary" : "yellow"}
                 style={{
                   minWidth: "36px",
                   textAlign: "center",
@@ -393,8 +419,8 @@ export const MatchesCard = ({ data = {} }) => {
                 {data.goles_visitante}
               </Text>
 
-              {/* Badge de puntos obtenidos */}
-              {puntos != null && puntos > 0 && (
+              {/* Badge de puntos obtenidos - Solo mostrar si está finalizado */}
+              {isFinalizado && puntos != null && puntos > 0 && (
                 <Badge
                   color={puntos === 3 ? "success" : "blue"}
                   variant="filled"
@@ -408,7 +434,7 @@ export const MatchesCard = ({ data = {} }) => {
                   +{puntos}
                 </Badge>
               )}
-              {puntos === 0 && (
+              {isFinalizado && puntos === 0 && (
                 <Badge
                   color="red"
                   variant="light"

@@ -8,6 +8,7 @@ export const userPredictionsAdapter = (response) => {
   const data = response?.data || [];
   return data.map((partido) => ({
     id: partido.id,
+    estado: partido.estado ?? "Programado",
     goles_local: partido?.goles_local,
     goles_visitante: partido?.goles_visitante,
     fase: {

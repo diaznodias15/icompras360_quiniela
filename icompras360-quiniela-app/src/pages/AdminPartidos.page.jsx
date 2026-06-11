@@ -51,29 +51,26 @@ const ESTADOS_DISPONIBLES = [
 ];
 
 const getEstadoColor = (estado) => {
-  switch (estado) {
-    case "Programado":
-      return "gray";
-    case "En Progreso":
-      return "yellow";
-    case "Finalizado":
-      return "green";
-    default:
-      return "gray";
-  }
+  const estadoLower = estado?.toLowerCase() || "";
+  if (estadoLower === "programado") return "gray";
+  if (estadoLower === "en progreso") return "yellow";
+  if (estadoLower === "finalizado") return "green";
+  return "gray";
 };
 
 const getEstadoIcon = (estado) => {
-  switch (estado) {
-    case "Programado":
-      return <Clock size={14} />;
-    case "En Progreso":
-      return <PlayCircle size={14} />;
-    case "Finalizado":
-      return <CheckCircle size={14} />;
-    default:
-      return <Clock size={14} />;
-  }
+  const estadoLower = estado?.toLowerCase() || "";
+  if (estadoLower === "programado") return <Clock size={14} />;
+  if (estadoLower === "en progreso") return <PlayCircle size={14} />;
+  if (estadoLower === "finalizado") return <CheckCircle size={14} />;
+  return <Clock size={14} />;
+};
+
+const formatEstadoDisplay = (estado) => {
+  if (!estado) return "Programado";
+  const estadoLower = estado.toLowerCase();
+  if (estadoLower === "en progreso") return "En Progreso";
+  return estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
 };
 
 export const AdminPartidosCardSkeleton = () => {
@@ -99,8 +96,17 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
   const [visitanteGoles, setVisitanteGoles] = useState(
     data.goles_visitante ?? "",
   );
-  const [estado, setEstado] = useState(data.estado ?? "Programado");
+  const [estado, setEstado] = useState(() => {
+    const raw = data.estado ?? "Programado";
+    const lower = raw.toLowerCase();
+    if (lower === "en progreso") return "En Progreso";
+    if (lower === "finalizado") return "Finalizado";
+    if (lower === "programado") return "Programado";
+    return raw;
+  });
   const [isSaving, setIsSaving] = useState(false);
+
+  const isFinalizado = estado?.toLowerCase() === "finalizado";
 
   const handleSave = useDebouncedCallback(async () => {
     if (isSaving) return;
@@ -150,7 +156,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
               size="sm"
               leftSection={getEstadoIcon(estado)}
             >
-              {estado}
+              {formatEstadoDisplay(estado)}
             </Badge>
             <Badge color="violet" variant="outline" size="sm">
               Grupo {data.grupo || "N/A"}
@@ -280,7 +286,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
                 size="xs"
                 data={ESTADOS_DISPONIBLES}
                 value={estado}
-                onChange={setEstado}
+                onChange={(val) => setEstado(val || "Programado")}
                 style={{ width: "100%" }}
               />
             )}
