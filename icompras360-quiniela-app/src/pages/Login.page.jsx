@@ -1,5 +1,5 @@
 // REACT
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 // MANTINE
 import {
@@ -48,7 +48,7 @@ const Login = () => {
   const { appConfig } = useContext(AppContext);
 
   // RESPONSIVE
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 768px)", false);
   const imageWidth = useMatches({ base: 130, xs: 200 });
 
   // NAVIGATE
@@ -67,6 +67,9 @@ const Login = () => {
     setUserToken: useUserStore((state) => state.setToken),
     setUserIsCli: useUserStore((state) => state.setIsCli),
   };
+
+  // STATE
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   // REF
   const controllerRef = useRef(null);
@@ -105,7 +108,8 @@ const Login = () => {
 
   // EFFECTS
   useEffect(() => {
-    if (token && is_cli !== null) {
+    if (token && is_cli !== null && !hasNavigated) {
+      setHasNavigated(true);
       const redirectRoute =
         is_cli === 1
           ? PrivateRoutes.PREDICTIONS.route
@@ -117,9 +121,11 @@ const Login = () => {
     return () => {
       controllerRef.current.abort();
     };
-  }, [token, is_cli, navigate]);
+  }, [token, is_cli, navigate, hasNavigated]);
 
-  if (token) return null;
+  if (token && is_cli !== null && hasNavigated) {
+    return null;
+  }
   if (appConfig.is_show_user === 0)
     return (
       <ServerError

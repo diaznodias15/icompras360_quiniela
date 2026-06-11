@@ -65,11 +65,13 @@ export const logOut = async (states, storeData) => {
       method: "POST",
       authToken: token,
       onSuccess: async (response) => {
+        modalActions.close();
         logout();
         setIsLoading(false);
       },
       onError: (code, error) => {
         console.error("Error al cerrar sesión: ", code, " | ", error.message);
+        modalActions.close();
         logout();
         setIsLoading(false);
       },
@@ -81,7 +83,5 @@ export const logOut = async (states, storeData) => {
     });
   } catch (error) {
     console.error(`Error endpoint /api/auth/logout`, error);
-  } finally {
-    states.modalActions.close();
   }
 };

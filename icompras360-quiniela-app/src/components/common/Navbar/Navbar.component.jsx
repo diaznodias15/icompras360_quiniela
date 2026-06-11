@@ -75,7 +75,6 @@ const NavbarLogo = () => {
 
 const AdminNavLinks = () => {
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const adminLinks = [
     {
@@ -114,45 +113,45 @@ const AdminNavLinks = () => {
 
 const AdminNavIcons = () => {
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 768px)", false);
 
-  if (isMobile) {
-    const adminLinks = [
-      {
-        label: "Ranking",
-        route: PrivateRoutes.RANKING.route,
-        icon: <Trophy size={20} />,
-      },
-      {
-        label: "Partidos",
-        route: PrivateRoutes.ADMIN_PARTIDOS.route,
-        icon: <Settings size={20} />,
-      },
-    ];
-
-    return (
-      <Flex align="center" gap={4} hiddenFrom="sm">
-        {adminLinks.map((link) => {
-          const isActive = location.pathname === link.route;
-          return (
-            <ActionIcon
-              key={link.route}
-              component={Link}
-              to={link.route}
-              variant={isActive ? "filled" : "light"}
-              color={isActive ? "red" : "dark"}
-              size="lg"
-              radius="md"
-            >
-              {link.icon}
-            </ActionIcon>
-          );
-        })}
-      </Flex>
-    );
+  if (!isMobile) {
+    return null;
   }
 
-  return null;
+  const adminLinks = [
+    {
+      label: "Ranking",
+      route: PrivateRoutes.RANKING.route,
+      icon: <Trophy size={20} />,
+    },
+    {
+      label: "Partidos",
+      route: PrivateRoutes.ADMIN_PARTIDOS.route,
+      icon: <Settings size={20} />,
+    },
+  ];
+
+  return (
+    <Flex align="center" gap={4} hiddenFrom="sm">
+      {adminLinks.map((link) => {
+        const isActive = location.pathname === link.route;
+        return (
+          <ActionIcon
+            key={link.route}
+            component={Link}
+            to={link.route}
+            variant={isActive ? "filled" : "light"}
+            color={isActive ? "red" : "dark"}
+            size="lg"
+            radius="md"
+          >
+            {link.icon}
+          </ActionIcon>
+        );
+      })}
+    </Flex>
+  );
 };
 
 const NavbarButtons = () => {
