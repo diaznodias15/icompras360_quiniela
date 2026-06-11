@@ -79,8 +79,9 @@ export const logOut = async (states, storeData) => {
       title: "OK",
       message: "Has cerrado sesión correctamente, esperamos verte pronto.",
     });
-    modalActions.close();
   } catch (error) {
     console.error(`Error endpoint /api/auth/logout`, error);
+  } finally {
+    states.modalActions.close();
   }
 };
