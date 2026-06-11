@@ -5,6 +5,7 @@ const inicialState = {
   id: null,
   email: null,
   token: null,
+  is_cli: null,
 };
 export const useUserStore = create(
   persist((set) => ({
@@ -17,6 +18,9 @@ export const useUserStore = create(
     },
     setToken: (token) => {
       set(() => ({ token }));
+    },
+    setIsCli: (is_cli) => {
+      set(() => ({ is_cli }));
     },
     reset: () => {
       set(inicialState);

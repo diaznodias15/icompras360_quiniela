@@ -26,8 +26,15 @@ export const handleLogIn = async (data, controller, states, storeData) => {
         storeData.setUserID(loginAdapted.id);
         storeData.setUserEmail(loginAdapted.email);
         storeData.setUserToken(loginAdapted.token);
+        storeData.setUserIsCli(loginAdapted.is_cli);
         isLoadingActions.close();
-        navigate(`${PrivateRoutes.PREDICTIONS.route}`, { replace: true });
+
+        const redirectRoute =
+          loginAdapted.is_cli === 1
+            ? PrivateRoutes.PREDICTIONS.route
+            : PrivateRoutes.RANKING.route;
+
+        navigate(`${redirectRoute}`, { replace: true });
         notifications.show({
           color: "success",
           message: <Text>Bienvenido(a)</Text>,

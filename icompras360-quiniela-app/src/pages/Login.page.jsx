@@ -60,10 +60,12 @@ const Login = () => {
 
   // STORE
   const token = useUserStore((state) => state.token);
+  const is_cli = useUserStore((state) => state.is_cli);
   const storeData = {
     setUserID: useUserStore((state) => state.setId),
     setUserEmail: useUserStore((state) => state.setEmail),
     setUserToken: useUserStore((state) => state.setToken),
+    setUserIsCli: useUserStore((state) => state.setIsCli),
   };
 
   // REF
@@ -103,13 +105,19 @@ const Login = () => {
 
   // EFFECTS
   useEffect(() => {
-    if (token) navigate(`${PrivateRoutes.PREDICTIONS.route}`);
+    if (token && is_cli !== null) {
+      const redirectRoute =
+        is_cli === 1
+          ? PrivateRoutes.PREDICTIONS.route
+          : PrivateRoutes.RANKING.route;
+      navigate(`${redirectRoute}`, { replace: true });
+    }
     controllerRef.current = new AbortController();
 
     return () => {
       controllerRef.current.abort();
     };
-  }, []);
+  }, [token, is_cli, navigate]);
 
   if (token) return null;
   if (appConfig.is_show_user === 0)

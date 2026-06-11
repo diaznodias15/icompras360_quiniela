@@ -17,4 +17,9 @@ export const PrivateRoutes = {
     route: "/predicciones",
     routeName: "Predicciones",
   },
+  RANKING: {
+    id: 11,
+    route: "/ranking",
+    routeName: "Ranking",
+  },
 };

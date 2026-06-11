@@ -15,6 +15,7 @@ import ProtectedRoute from "./ProtectedRoutes.router";
 const Login = lazy(() => import("@pages/Login.page"));
 const Predictions = lazy(() => import("@pages/Predictions.page"));
 const SignUp = lazy(() => import("@pages/SignUp.page"));
+const Ranking = lazy(() => import("@pages/Ranking.page"));
 
 const AppRouter = () => {
   // CONTEXT
@@ -44,11 +45,15 @@ const AppRouter = () => {
             }
           />
 
-          {/* PROTECTED ROUTE */}
+          {/* PROTECTED ROUTE - CLIENT (is_cli = 1) */}
           <Route
-            element={<ProtectedRoute redirectURL={PublicRoutes.LOGIN.route} />}
+            element={
+              <ProtectedRoute
+                redirectURL={PublicRoutes.LOGIN.route}
+                allowedRoute={PrivateRoutes.PREDICTIONS.route}
+              />
+            }
           >
-            {/* QUINIELA */}
             <Route
               element={
                 <Layout
@@ -60,6 +65,27 @@ const AppRouter = () => {
               <Route
                 path={`${PrivateRoutes.PREDICTIONS.route}`}
                 element={<Predictions />}
+              />
+            </Route>
+          </Route>
+
+          {/* PROTECTED ROUTE - ADMIN (is_cli = 0) */}
+          <Route
+            element={
+              <ProtectedRoute
+                redirectURL={PublicRoutes.LOGIN.route}
+                allowedRoute={PrivateRoutes.RANKING.route}
+              />
+            }
+          >
+            <Route
+              element={
+                <Layout pageName="RANKING" id={PrivateRoutes.RANKING.id} />
+              }
+            >
+              <Route
+                path={`${PrivateRoutes.RANKING.route}`}
+                element={<Ranking />}
               />
             </Route>
           </Route>
