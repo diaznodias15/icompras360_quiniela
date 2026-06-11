@@ -158,6 +158,7 @@ const Ranking = () => {
       <Table.Td><Skeleton height={20} width={40} /></Table.Td>
       <Table.Td><Skeleton height={20} width={40} /></Table.Td>
       <Table.Td><Skeleton height={20} width={50} /></Table.Td>
+      <Table.Td><Skeleton height={20} width={60} /></Table.Td>
       <Table.Td><Skeleton height={30} width={80} /></Table.Td>
     </Table.Tr>
   ));
@@ -191,6 +192,7 @@ const Ranking = () => {
                     <Table.Th style={{ textAlign: "center" }}>Exactos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Simples</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Efectividad</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Pronósticos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -199,7 +201,7 @@ const Ranking = () => {
                     skeletonRows
                   ) : error ? (
                     <Table.Tr>
-                      <Table.Td colSpan={7}>
+                      <Table.Td colSpan={8}>
                         <Text c="danger" ta="center" fw={600}>
                           Error al cargar el ranking
                         </Text>
@@ -207,7 +209,7 @@ const Ranking = () => {
                     </Table.Tr>
                   ) : rankingData.length === 0 ? (
                     <Table.Tr>
-                      <Table.Td colSpan={7}>
+                      <Table.Td colSpan={8}>
                         <Text c="dimmed" ta="center">
                           No hay participantes en el ranking
                         </Text>
@@ -269,6 +271,11 @@ const Ranking = () => {
                               w={60}
                             />
                           </Stack>
+                        </Table.Td>
+                        <Table.Td style={{ textAlign: "center" }}>
+                          <Badge color="violet" variant="light" size="lg">
+                            {user.pronosticos_count}
+                          </Badge>
                         </Table.Td>
                         <Table.Td style={{ textAlign: "center" }}>
                           <Button

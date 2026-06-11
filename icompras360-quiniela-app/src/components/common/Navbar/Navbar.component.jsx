@@ -16,7 +16,9 @@ import {
   Text,
   UnstyledButton,
   Badge,
+  ActionIcon,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 // COMPONENTS
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component";
 import { ThemeButton } from "@components/common/ThemeButton/ThemeButton.component";
@@ -73,6 +75,7 @@ const NavbarLogo = () => {
 
 const AdminNavLinks = () => {
   const location = useLocation();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const adminLinks = [
     {
@@ -88,7 +91,7 @@ const AdminNavLinks = () => {
   ];
 
   return (
-    <Flex align="center" gap="xs">
+    <Flex align="center" gap="xs" visibleFrom="sm">
       {adminLinks.map((link) => {
         const isActive = location.pathname === link.route;
         return (
@@ -107,6 +110,49 @@ const AdminNavLinks = () => {
       })}
     </Flex>
   );
+};
+
+const AdminNavIcons = () => {
+  const location = useLocation();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  if (isMobile) {
+    const adminLinks = [
+      {
+        label: "Ranking",
+        route: PrivateRoutes.RANKING.route,
+        icon: <Trophy size={20} />,
+      },
+      {
+        label: "Partidos",
+        route: PrivateRoutes.ADMIN_PARTIDOS.route,
+        icon: <Settings size={20} />,
+      },
+    ];
+
+    return (
+      <Flex align="center" gap={4} hiddenFrom="sm">
+        {adminLinks.map((link) => {
+          const isActive = location.pathname === link.route;
+          return (
+            <ActionIcon
+              key={link.route}
+              component={Link}
+              to={link.route}
+              variant={isActive ? "filled" : "light"}
+              color={isActive ? "red" : "dark"}
+              size="lg"
+              radius="md"
+            >
+              {link.icon}
+            </ActionIcon>
+          );
+        })}
+      </Flex>
+    );
+  }
+
+  return null;
 };
 
 const NavbarButtons = () => {
@@ -216,7 +262,12 @@ export const Navbar = memo(() => {
           <Flex align={"center"} gap={5} h={"100%"} justify={"space-between"}>
             <Flex align={"center"} className="grow" gap={5}>
               <NavbarLogo />
-              {is_cli === 0 && <AdminNavLinks />}
+              {is_cli === 0 && (
+                <>
+                  <AdminNavLinks />
+                  <AdminNavIcons />
+                </>
+              )}
             </Flex>
             <Flex
               align={"center"}
