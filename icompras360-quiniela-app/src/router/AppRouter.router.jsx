@@ -16,6 +16,7 @@ const Login = lazy(() => import("@pages/Login.page"));
 const Predictions = lazy(() => import("@pages/Predictions.page"));
 const SignUp = lazy(() => import("@pages/SignUp.page"));
 const Ranking = lazy(() => import("@pages/Ranking.page"));
+const AdminPartidos = lazy(() => import("@pages/AdminPartidos.page"));
 
 const AppRouter = () => {
   // CONTEXT
@@ -50,7 +51,7 @@ const AppRouter = () => {
             element={
               <ProtectedRoute
                 redirectURL={PublicRoutes.LOGIN.route}
-                allowedRoute={PrivateRoutes.PREDICTIONS.route}
+                allowedRoutes={[PrivateRoutes.PREDICTIONS.route]}
               />
             }
           >
@@ -74,7 +75,7 @@ const AppRouter = () => {
             element={
               <ProtectedRoute
                 redirectURL={PublicRoutes.LOGIN.route}
-                allowedRoute={PrivateRoutes.RANKING.route}
+                allowedRoutes={[PrivateRoutes.RANKING.route, PrivateRoutes.ADMIN_PARTIDOS.route]}
               />
             }
           >
@@ -86,6 +87,16 @@ const AppRouter = () => {
               <Route
                 path={`${PrivateRoutes.RANKING.route}`}
                 element={<Ranking />}
+              />
+            </Route>
+            <Route
+              element={
+                <Layout pageName="ADMIN PARTIDOS" id={PrivateRoutes.ADMIN_PARTIDOS.id} />
+              }
+            >
+              <Route
+                path={`${PrivateRoutes.ADMIN_PARTIDOS.route}`}
+                element={<AdminPartidos />}
               />
             </Route>
           </Route>

@@ -15,6 +15,7 @@ import {
   Paper,
   Text,
   UnstyledButton,
+  Badge,
 } from "@mantine/core";
 // COMPONENTS
 import { ContainerSection } from "@components/common/ContainerSection/ContainerSection.component";
@@ -22,9 +23,9 @@ import { ThemeButton } from "@components/common/ThemeButton/ThemeButton.componen
 // CONTEXT
 import { AppContext } from "@context/app.context";
 // LUCIDE
-import { LogIn, LogOut, MapPin, RefreshCw, User } from "lucide-react";
+import { LogIn, LogOut, MapPin, RefreshCw, User, Trophy, Settings } from "lucide-react";
 // ROUTER
-import { PublicRoutes } from "@router/routes.router";
+import { PublicRoutes, PrivateRoutes } from "@router/routes.router";
 // STORE
 import { useUserStore } from "@store/user.store";
 // STYLES
@@ -70,6 +71,44 @@ const NavbarLogo = () => {
   );
 };
 
+const AdminNavLinks = () => {
+  const location = useLocation();
+
+  const adminLinks = [
+    {
+      label: "Ranking",
+      route: PrivateRoutes.RANKING.route,
+      icon: <Trophy size={16} />,
+    },
+    {
+      label: "Partidos",
+      route: PrivateRoutes.ADMIN_PARTIDOS.route,
+      icon: <Settings size={16} />,
+    },
+  ];
+
+  return (
+    <Flex align="center" gap="xs">
+      {adminLinks.map((link) => {
+        const isActive = location.pathname === link.route;
+        return (
+          <Button
+            key={link.route}
+            component={Link}
+            to={link.route}
+            variant={isActive ? "filled" : "subtle"}
+            color={isActive ? "red" : "dark"}
+            size="sm"
+            leftSection={link.icon}
+          >
+            {link.label}
+          </Button>
+        );
+      })}
+    </Flex>
+  );
+};
+
 const NavbarButtons = () => {
   // CONTEXT
   const { modalLogoutActions } = useContext(AppContext);
@@ -77,6 +116,7 @@ const NavbarButtons = () => {
   // STORE
   const userID = useUserStore((state) => state.id);
   const userEmail = useUserStore((state) => state.email);
+  const is_cli = useUserStore((state) => state.is_cli);
 
   return (
     <Flex align="center" gap={10} h={"100%"} justify="flex-end">
@@ -160,6 +200,8 @@ const NavbarButtons = () => {
 };
 
 export const Navbar = memo(() => {
+  const is_cli = useUserStore((state) => state.is_cli);
+
   return (
     <Paper
       bg={"navbar"}
@@ -174,6 +216,7 @@ export const Navbar = memo(() => {
           <Flex align={"center"} gap={5} h={"100%"} justify={"space-between"}>
             <Flex align={"center"} className="grow" gap={5}>
               <NavbarLogo />
+              {is_cli === 0 && <AdminNavLinks />}
             </Flex>
             <Flex
               align={"center"}

@@ -22,4 +22,9 @@ export const PrivateRoutes = {
     route: "/ranking",
     routeName: "Ranking",
   },
+  ADMIN_PARTIDOS: {
+    id: 12,
+    route: "/admin/partidos",
+    routeName: "Admin Partidos",
+  },
 };
