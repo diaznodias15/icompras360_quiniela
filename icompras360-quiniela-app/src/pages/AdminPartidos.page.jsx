@@ -41,6 +41,8 @@ import {
   PlayCircle,
   Flag,
 } from "lucide-react";
+// UTILITIES
+import { getFlagUrl } from "@utilities/matchesUtilities.utility.jsx";
 
 const ESTADOS_DISPONIBLES = [
   { value: "Programado", label: "Programado", color: "gray" },
@@ -166,7 +168,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
           >
             {data.local?.codigo_iso ? (
               <img
-                src={`https://flagcdn.com/w40/${data.local.codigo_iso.toLowerCase()}.png`}
+                src={getFlagUrl(data.local.codigo_iso)}
                 alt={data.local.nombre}
                 style={{
                   width: "48px",
@@ -293,7 +295,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
           >
             {data.visitante?.codigo_iso ? (
               <img
-                src={`https://flagcdn.com/w40/${data.visitante.codigo_iso.toLowerCase()}.png`}
+                src={getFlagUrl(data.visitante.codigo_iso)}
                 alt={data.visitante.nombre}
                 style={{
                   width: "48px",
