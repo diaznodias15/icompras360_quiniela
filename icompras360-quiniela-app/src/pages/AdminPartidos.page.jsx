@@ -31,18 +31,18 @@ import {
 import { useUserStore } from "@store/user.store";
 import {
   Trophy,
-  Calendar,
   MapPin,
   Save,
   Edit,
   Clock,
-  Lock,
   CheckCircle,
   PlayCircle,
-  Flag,
 } from "lucide-react";
 // UTILITIES
-import { getFlagUrl } from "@utilities/matchesUtilities.utility.jsx";
+import {
+  getFlagUrl,
+  formatMatchDate,
+} from "@utilities/matchesUtilities.utility.jsx";
 
 const ESTADOS_DISPONIBLES = [
   { value: "Programado", label: "Programado", color: "gray" },
@@ -283,7 +283,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
 
             {isEditing && (
               <Select
-                size="xs"
+                size="md"
                 data={ESTADOS_DISPONIBLES}
                 value={estado}
                 onChange={(val) => setEstado(val || "Programado")}
@@ -343,7 +343,7 @@ export const AdminPartidosCard = ({ data = {}, onUpdate }) => {
             <Group gap={6}>
               <Clock size={14} className="text-dimmed" />
               <Text size="xs" c="dimmed" fw={600}>
-                {new Date(data.fecha_hora_utc).toLocaleString("es-ES")}
+                {formatMatchDate(data.fecha_hora_utc)} (Hora Local)
               </Text>
             </Group>
             <Group gap={6} align="flex-start" wrap="nowrap">
