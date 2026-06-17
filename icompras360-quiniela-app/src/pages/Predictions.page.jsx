@@ -296,10 +296,16 @@ const Predictions = () => {
                           Puntos Acumulados
                         </Text>
                         {loading || !estadisticas ? (
-                          <Skeleton height={36} width={60} />
+                          <Skeleton height={36} width={100} />
                         ) : (
                           <Text size="3xl" fw={900} c="#E31B23">
-                            {estadisticas.puntos_acumulados} Pts
+                            {estadisticas.puntos_acumulados}
+                            <Text component="span" size="xl" fw={500}>
+                              {" "}/ {estadisticas.puntos_posibles}
+                            </Text>{" "}
+                            <Text component="span" size="lg" fw={700}>
+                              Pts
+                            </Text>
                           </Text>
                         )}
                       </Stack>
@@ -383,7 +389,7 @@ const Predictions = () => {
                   </Card>
                 </Grid.Col>
 
-                {/* EFECTIVIDAD */}
+                {/* EFICIENCIA */}
                 <Grid.Col span={{ base: 20, sm: 5, md: 4 }}>
                   <Card
                     h={"100%"}
@@ -395,17 +401,17 @@ const Predictions = () => {
                     <Group justify="space-between" align="center">
                       <Stack gap={2}>
                         <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                          Predicciones
+                          Eficiencia
                         </Text>
                         {loading || !estadisticas ? (
                           <Skeleton height={24} width={80} />
                         ) : (
                           <Text size="lg" fw={800}>
-                            {estadisticas.porcentaje_prediccion}%
+                            {estadisticas.eficiencia}%
                           </Text>
                         )}
                         <Text size="xs" c="dimmed">
-                          Efectividad de acierto
+                          Porcentaje de eficiencia
                         </Text>
                       </Stack>
                       {loading || !estadisticas ? (
@@ -417,13 +423,13 @@ const Predictions = () => {
                           thickness={6}
                           sections={[
                             {
-                              value: estadisticas.porcentaje_prediccion,
+                              value: estadisticas.eficiencia,
                               color: "teal",
                             },
                           ]}
                           label={
                             <Text size="xs" fw={700} ta="center">
-                              {estadisticas.porcentaje_prediccion}%
+                              {estadisticas.eficiencia}%
                             </Text>
                           }
                         />
