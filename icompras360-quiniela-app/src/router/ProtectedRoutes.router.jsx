@@ -1,4 +1,5 @@
 // REACT
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router";
 // ROUTER
 import { PublicRoutes, PrivateRoutes } from "@router/routes.router";
@@ -13,13 +14,13 @@ const ProtectedRoute = ({
   const is_cli = useUserStore((state) => state.is_cli);
   const logout = useUserStore((state) => state.reset);
 
-  if (!userToken) {
-    logout();
-    return <Navigate replace to={redirectURL} />;
-  }
+  useEffect(() => {
+    if (!userToken || is_cli === null) {
+      logout();
+    }
+  }, [userToken, is_cli, logout]);
 
-  if (is_cli === null) {
-    logout();
+  if (!userToken || is_cli === null) {
     return <Navigate replace to={redirectURL} />;
   }
 
