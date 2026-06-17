@@ -191,7 +191,7 @@ const Ranking = () => {
                     <Table.Th style={{ textAlign: "center" }}>Puntos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Exactos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Simples</Table.Th>
-                    <Table.Th style={{ textAlign: "center" }}>Efectividad</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Eficiencia</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Pronósticos</Table.Th>
                     <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
                   </Table.Tr>
@@ -245,9 +245,12 @@ const Ranking = () => {
                           </Group>
                         </Table.Td>
                         <Table.Td style={{ textAlign: "center" }}>
-                          <Badge color="red" variant="filled" size="lg">
-                            {user.puntos_acumulados} pts
-                          </Badge>
+                          <Stack gap={2} align="center">
+                            <Badge color="red" variant="filled" size="lg">
+                              {Number(user.puntos_acumulados)} / {Number(user.puntos_posibles)}
+                            </Badge>
+                            <Text size="xs" c="dimmed">pts</Text>
+                          </Stack>
                         </Table.Td>
                         <Table.Td style={{ textAlign: "center" }}>
                           <Text fw={600} c="blue">
@@ -262,11 +265,11 @@ const Ranking = () => {
                         <Table.Td style={{ textAlign: "center" }}>
                           <Stack gap={4} align="center">
                             <Text fw={700} size="sm">
-                              {user.porcentaje_prediccion}%
+                              {Number(user.eficiencia).toFixed(2)}%
                             </Text>
                             <Progress
-                              value={parseFloat(user.porcentaje_prediccion)}
-                              color={parseFloat(user.porcentaje_prediccion) >= 50 ? "teal" : "red"}
+                              value={Number(user.eficiencia)}
+                              color={Number(user.eficiencia) >= 50 ? "teal" : "red"}
                               size="sm"
                               w={60}
                             />
