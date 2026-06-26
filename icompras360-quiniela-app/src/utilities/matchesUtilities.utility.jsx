@@ -31,3 +31,24 @@ export const formatMatchDate = (dateString) => {
     return dateString;
   }
 };
+
+export const isTeamPlaceholder = (team) => {
+  if (team == null) return true;
+  const codigoIso = team.codigo_iso;
+  return codigoIso == null || String(codigoIso).trim() === "";
+};
+
+export const getPlaceholderName = (team, side) => {
+  if (!isTeamPlaceholder(team)) return null;
+  return side === "visitante" ? "Equipo Visitante" : "Equipo Local";
+};
+
+export const getPlaceholderOrigin = (team) => {
+  if (!isTeamPlaceholder(team)) return null;
+  return String(team.placeholder).trim();
+};
+
+export const canPredict = (match) => {
+  if (!match) return false;
+  return !isTeamPlaceholder(match.local) && !isTeamPlaceholder(match.visitante);
+};

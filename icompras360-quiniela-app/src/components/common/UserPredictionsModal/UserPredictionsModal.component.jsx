@@ -13,14 +13,18 @@ import {
   Stack,
   Text,
   Chip,
+  ThemeIcon,
 } from "@mantine/core";
 // LUCIDE
-import { Clock, MapPin, Eye, Lock, AlertCircle } from "lucide-react";
+import { Clock, MapPin, Eye, Lock, AlertCircle, Hourglass } from "lucide-react";
 // UTILITIES
 import {
   formatMatchDate,
   getFlagUrl,
+  getPlaceholderName,
+  getPlaceholderOrigin,
   isMatchLocked,
+  isTeamPlaceholder,
 } from "@utilities/matchesUtilities.utility.jsx";
 
 export const UserPredictionsCardSkeleton = () => {
@@ -40,10 +44,99 @@ export const UserPredictionsCardSkeleton = () => {
   );
 };
 
+const TeamDisplayReadOnly = ({ team, side }) => {
+  const isPlaceholder = isTeamPlaceholder(team);
+  const placeholderName = getPlaceholderName(team, side);
+  const placeholderOrigin = getPlaceholderOrigin(team);
+
+  if (isPlaceholder) {
+    return (
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        w="20%"
+        gap="xs"
+      >
+        <ThemeIcon
+          variant="light"
+          color="gray"
+          size={48}
+          radius="md"
+          style={{ opacity: 0.85 }}
+        >
+          <Hourglass size={22} />
+        </ThemeIcon>
+        <Text
+          fw={750}
+          ta="center"
+          size="sm"
+          c="dimmed"
+          fs="italic"
+          style={{
+            minHeight: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {placeholderName}
+        </Text>
+        {placeholderOrigin && (
+          <Text size="2xs" c="dimmed" ta="center" fw={600}>
+            Origen: {placeholderOrigin}
+          </Text>
+        )}
+      </Flex>
+    );
+  }
+
+  return (
+    <Flex direction="column" align="center" justify="center" w="20%" gap="xs">
+      {team?.codigo_iso ? (
+        <img
+          src={getFlagUrl(team.codigo_iso)}
+          alt={team.nombre}
+          style={{
+            width: "48px",
+            height: "36px",
+            objectFit: "cover",
+            borderRadius: "6px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+            border: "1px solid rgba(0,0,0,0.1)",
+          }}
+        />
+      ) : (
+        <Text size="3xl" style={{ lineHeight: 1 }}>
+          {team?.bandera_icono || "🏳️"}
+        </Text>
+      )}
+      <Text
+        fw={750}
+        ta="center"
+        size="sm"
+        style={{
+          minHeight: "40px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {team?.nombre || (side === "visitante" ? "Equipo Visitante" : "Equipo Local")}
+      </Text>
+      <Badge color="gray" variant="dot">
+        {team?.codigo_fifa}
+      </Badge>
+    </Flex>
+  );
+};
+
 export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
   const isLocked = isMatchLocked(data.fecha_hora_utc);
   const estado = data.estado || "Programado";
   const isFinalizado = estado === "Finalizado";
+  const hasPlaceholderTeam =
+    isTeamPlaceholder(data.local) || isTeamPlaceholder(data.visitante);
 
   const pronostico = {
     golesLocal: data.pronostico?.golesLocal ?? "",
@@ -118,6 +211,16 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
             >
               {estado}
             </Badge>
+            {hasPlaceholderTeam && (
+              <Badge
+                color="orange"
+                variant="light"
+                size="sm"
+                leftSection={<Hourglass size={10} />}
+              >
+                Pendiente
+              </Badge>
+            )}
             {isLocked && (
               <Badge
                 color="red"
@@ -128,55 +231,16 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
                 Bloqueado
               </Badge>
             )}
-            <Badge color="violet" variant="outline" size="sm">
-              Grupo {data.grupo || "N/A"}
-            </Badge>
+            {data.fase?.id === 1 && (
+              <Badge color="violet" variant="outline" size="sm">
+                Grupo {data.grupo || "N/A"}
+              </Badge>
+            )}
           </Group>
         </Group>
 
         <Flex justify="space-between" align="center" py="sm" gap="xs">
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            w="20%"
-            gap="xs"
-          >
-            {data.local?.codigo_iso ? (
-              <img
-                src={getFlagUrl(data.local.codigo_iso)}
-                alt={data.local.nombre}
-                style={{
-                  width: "48px",
-                  height: "36px",
-                  objectFit: "cover",
-                  borderRadius: "6px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                  border: "1px solid rgba(0,0,0,0.1)",
-                }}
-              />
-            ) : (
-              <Text size="3xl" style={{ lineHeight: 1 }}>
-                {data.local?.bandera_icono || "🏳️"}
-              </Text>
-            )}
-            <Text
-              fw={750}
-              ta="center"
-              size="sm"
-              style={{
-                minHeight: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {data.local?.nombre || "Equipo Local"}
-            </Text>
-            <Badge color="gray" variant="dot">
-              {data.local?.codigo_fifa}
-            </Badge>
-          </Flex>
+          <TeamDisplayReadOnly team={data.local} side="local" />
 
           <Flex direction="column" align="center" gap="sm" w="50%">
             <Group gap={8} justify="center" align="center">
@@ -214,48 +278,7 @@ export const UserPredictionsCard = ({ data = {}, isReadOnly = false }) => {
             </Group>
           </Flex>
 
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            w="20%"
-            gap="xs"
-          >
-            {data.visitante?.codigo_iso ? (
-              <img
-                src={getFlagUrl(data.visitante.codigo_iso)}
-                alt={data.visitante.nombre}
-                style={{
-                  width: "48px",
-                  height: "36px",
-                  objectFit: "cover",
-                  borderRadius: "6px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                  border: "1px solid rgba(0,0,0,0.1)",
-                }}
-              />
-            ) : (
-              <Text size="3xl" style={{ lineHeight: 1 }}>
-                {data.visitante?.bandera_icono || "🏳️"}
-              </Text>
-            )}
-            <Text
-              fw={750}
-              ta="center"
-              size="sm"
-              style={{
-                minHeight: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {data.visitante?.nombre || "Equipo Visitante"}
-            </Text>
-            <Badge color="gray" variant="dot">
-              {data.visitante?.codigo_fifa}
-            </Badge>
-          </Flex>
+          <TeamDisplayReadOnly team={data.visitante} side="visitante" />
         </Flex>
 
         {data.goles_local != null && data.goles_visitante != null && (
